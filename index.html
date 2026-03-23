@@ -3,26 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فضفضة - الإصدار الأسطوري</title>
+    <title>فضفضة - الإصدار الأسطوري المطور</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --indigo-primary: #6366f1;
-            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+            --level-color: #f1f5f9;
         }
         body {
             font-family: 'Cairo', sans-serif;
-            background: var(--bg-gradient);
+            background-color: var(--level-color);
             color: #1e293b;
             overflow-x: hidden;
-            transition: background 0.8s ease;
+            transition: background-color 1.2s ease;
+            position: relative;
         }
+
+        /* Animated Background Blobs */
+        .bg-blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(80px);
+            opacity: 0.6;
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: move 20s infinite alternate;
+        }
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #818cf8;
+            top: -100px;
+            right: -100px;
+        }
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            background: #c7d2fe;
+            bottom: -50px;
+            left: -50px;
+            animation-duration: 25s;
+        }
+        .blob-3 {
+            width: 250px;
+            height: 250px;
+            background: #6366f1;
+            top: 40%;
+            left: 20%;
+            animation-duration: 15s;
+        }
+
+        @keyframes move {
+            from { transform: translate(0, 0) rotate(0deg); }
+            to { transform: translate(100px, 100px) rotate(360deg); }
+        }
+
         .glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
         }
         .wheel-container {
             position: relative;
@@ -53,7 +102,7 @@
             border: 3px solid var(--indigo-primary);
             background: white;
             transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.15);
+            box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
         }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -62,7 +111,6 @@
         }
         .timer-shake { animation: shake 0.2s infinite; color: #ef4444 !important; }
         
-        /* Podium Styles */
         .podium-item {
             display: flex;
             flex-direction: column;
@@ -90,29 +138,60 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <div id="app" class="flex-grow flex flex-col items-center justify-center p-4 max-w-2xl mx-auto w-full">
+    <!-- Background Decoration -->
+    <div class="bg-blobs">
+        <div class="blob blob-1" id="blob-1"></div>
+        <div class="blob blob-2" id="blob-2"></div>
+        <div class="blob blob-3" id="blob-3"></div>
+    </div>
+
+    <!-- Settings Toggle -->
+    <div class="fixed top-4 left-4 z-50 flex gap-2">
+        <button onclick="toggleSettings()" class="bg-white/80 backdrop-blur p-3 rounded-full shadow-lg border border-gray-100 btn-bounce">⚙️</button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center hidden p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-xs space-y-6 text-center animate-fade-in shadow-2xl">
+            <h3 class="text-xl font-black">الإعدادات ⚙️</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+                    <span class="font-bold">المؤثرات الصوتية</span>
+                    <input type="checkbox" id="setting-sound" checked class="w-6 h-6 accent-indigo-600">
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+                    <span class="font-bold">الاهتزاز (للموبايل)</span>
+                    <input type="checkbox" id="setting-vibrate" checked class="w-6 h-6 accent-indigo-600">
+                </div>
+            </div>
+            <button onclick="toggleSettings()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold">حفظ</button>
+        </div>
+    </div>
+
+    <div id="app" class="flex-grow flex flex-col items-center justify-center p-4 max-w-2xl mx-auto w-full relative z-10">
         
         <!-- Screen 1: Player Setup -->
         <div id="screen-setup" class="w-full text-center space-y-8 animate-fade-in">
             <div class="space-y-4">
-                <div class="text-8xl mb-4">🏆</div>
+                <div class="text-8xl mb-4 drop-shadow-2xl">🏆</div>
                 <h1 class="text-6xl font-black text-indigo-600 tracking-tighter">فضفضة: أسطوري</h1>
                 <p class="text-gray-500 font-bold">لعبة الصراحة والمنافسة رقم #1 في مصر</p>
             </div>
             
             <div id="player-inputs" class="space-y-4 max-h-60 overflow-y-auto p-2 no-scrollbar">
-                <!-- Initial Players -->
-                <div class="flex gap-2 items-center bg-white p-2 rounded-2xl shadow-sm border">
-                    <select class="avatar-select text-2xl p-2 bg-gray-50 rounded-xl outline-none">
+                <div class="flex gap-2 items-center bg-white/60 backdrop-blur p-2 rounded-2xl shadow-sm border border-white">
+                    <select class="avatar-select text-2xl p-2 bg-white/40 rounded-xl outline-none">
                         <option>😎</option><option>🐱</option><option>🦁</option><option>👻</option><option>🔥</option><option>👑</option><option>👽</option>
                     </select>
-                    <input type="text" placeholder="اسم اللاعب الأول" class="player-name-input flex-grow p-3 rounded-xl outline-none font-bold">
+                    <input type="text" placeholder="اسم اللاعب الأول" class="player-name-input flex-grow p-3 bg-transparent outline-none font-bold">
+                    <button onclick="this.parentElement.remove()" class="text-red-300 p-2 hover:text-red-500">✕</button>
                 </div>
-                <div class="flex gap-2 items-center bg-white p-2 rounded-2xl shadow-sm border">
-                    <select class="avatar-select text-2xl p-2 bg-gray-50 rounded-xl outline-none">
+                <div class="flex gap-2 items-center bg-white/60 backdrop-blur p-2 rounded-2xl shadow-sm border border-white">
+                    <select class="avatar-select text-2xl p-2 bg-white/40 rounded-xl outline-none">
                         <option>🦁</option><option>😎</option><option>🐱</option><option>👻</option><option>🔥</option><option>👑</option><option>👽</option>
                     </select>
-                    <input type="text" placeholder="اسم اللاعب الثاني" class="player-name-input flex-grow p-3 rounded-xl outline-none font-bold">
+                    <input type="text" placeholder="اسم اللاعب الثاني" class="player-name-input flex-grow p-3 bg-transparent outline-none font-bold">
+                    <button onclick="this.parentElement.remove()" class="text-red-300 p-2 hover:text-red-500">✕</button>
                 </div>
             </div>
 
@@ -126,20 +205,19 @@
 
         <!-- Screen 2: Game Dashboard -->
         <div id="screen-game" class="hidden w-full space-y-6">
-            <!-- Scoreboard -->
             <div id="scoreboard" class="flex gap-4 overflow-x-auto p-4 no-scrollbar items-center">
                 <!-- Players injected here -->
             </div>
 
             <div class="text-center relative">
-                <div id="turn-banner" class="inline-block glass px-10 py-3 rounded-full font-black text-indigo-700 shadow-md border border-indigo-100 mb-6">
+                <div id="turn-banner" class="inline-block glass px-10 py-3 rounded-full font-black text-indigo-700 shadow-md mb-6 border border-white">
                     الدور على: <span id="current-player-display" class="text-indigo-900">...</span>
                 </div>
                 
                 <div class="wheel-container">
                     <div class="pointer"></div>
                     <canvas id="wheel-canvas" width="800" height="800"></canvas>
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full shadow-2xl z-20 flex items-center justify-center font-black text-2xl text-indigo-600">🎡</div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full shadow-2xl z-20 flex items-center justify-center font-black text-2xl text-indigo-600 shadow-indigo-200">🎡</div>
                 </div>
             </div>
 
@@ -160,10 +238,9 @@
 
         <!-- Screen 3: Immersive Question Overlay -->
         <div id="question-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-            <div class="absolute inset-0 bg-indigo-950/80 backdrop-blur-lg"></div>
-            <div id="question-card" class="relative bg-white rounded-[3.5rem] p-10 md:p-14 w-full max-w-lg text-center space-y-10 shadow-2xl scale-90 transition-transform duration-300">
+            <div class="absolute inset-0 bg-indigo-950/40 backdrop-blur-md"></div>
+            <div id="question-card" class="relative bg-white/90 backdrop-blur-xl rounded-[3.5rem] p-10 md:p-14 w-full max-w-lg text-center space-y-10 shadow-2xl scale-90 transition-transform duration-300 border border-white">
                 
-                <!-- Timer Pulse -->
                 <div id="timer-ring" class="absolute -top-12 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full bg-white flex flex-col items-center justify-center shadow-2xl border-4 border-indigo-50">
                     <span id="timer-display" class="text-5xl font-black text-indigo-600">30</span>
                 </div>
@@ -186,23 +263,21 @@
 
                 <div class="grid grid-cols-1 gap-4">
                     <button onclick="handleResponse(true)" class="w-full py-6 bg-green-500 text-white rounded-3xl font-black text-2xl shadow-2xl btn-bounce">جاوبت بصراحة ✅</button>
-                    <button onclick="handleResponse(false)" class="w-full py-4 bg-red-50 text-red-600 border-2 border-red-100 rounded-3xl font-bold btn-bounce">انسحاب وعقاب 👹</button>
+                    <button onclick="handleResponse(false)" class="w-full py-4 bg-red-50 text-red-600 border-2 border-red-100 rounded-3xl font-bold btn-bounce">مش هجاوب وعقاب 👹</button>
                 </div>
             </div>
         </div>
 
         <!-- Screen 4: Legendary Podium -->
         <div id="screen-final" class="hidden w-full space-y-10 animate-fade-in text-center">
-            <div class="bg-white rounded-[4rem] p-12 shadow-2xl space-y-10">
+            <div class="glass rounded-[4rem] p-12 shadow-2xl space-y-10 border border-white">
                 <div class="text-8xl">🏅</div>
                 <h2 class="text-5xl font-black text-gray-800 tracking-tighter">منصة الأساطير</h2>
                 
                 <div id="podium-container" class="flex justify-center items-end gap-4 h-64 px-4">
-                    <!-- Podium items will be injected here -->
                 </div>
 
-                <div id="final-stats" class="space-y-4 pt-6 border-t border-gray-100">
-                    <!-- Other players ranking here -->
+                <div id="final-stats" class="space-y-4 pt-6 border-t border-white/20">
                 </div>
 
                 <button onclick="resetGame()" class="w-full py-6 bg-indigo-600 text-white rounded-3xl font-black text-2xl btn-bounce shadow-xl">لعبة جديدة؟ 🔄</button>
@@ -222,9 +297,10 @@
     </div>
 
     <script>
-        // --- Sound Engine (Web Audio API) ---
+        // --- Sound Engine ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playTone(freq, type, duration, vol = 0.1) {
+            if(!document.getElementById('setting-sound').checked) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
@@ -243,11 +319,11 @@
 
         // --- Database ---
         const rawQuestions = {
-            level1: ["أكلة ممكن تاكلها كل يوم؟", "لو بقيت شفاف هتعمل إيه؟", "أكتر موقف محرج في المواصلات؟", "تذكرة سفر لبلد واحدة؟", "لقب كنت بتكرهه وأنت صغير؟", "مين أكتر واحد رغاي فينا؟", "عادة غريبة بتعملها وأنت لوحدك؟", "لو بقيت بطل خارق قوتك إيه؟", "آخر حاجة عملت عنها سيرش؟", "دور بطل ولا شرير في فيلم؟", "أبلكيشن بيضيع وقتك؟", "تعيش في غابة ولا صحراء؟", "أغرب حاجة اشتريتها وندمت؟", "لو بقيت حيوان تحب تكون إيه؟", "أكتر كلمة بتقولها في يومك؟"],
-            level2: ["صفة لو غيرتها هتكون أسعد؟", "قرار ندمت عليه؟", "مليون جنيه في شنطة، هتعمل إيه؟", "حاجة بتخليك تفقد أعصابك؟", "بتثق في الناس بسرعة؟", "موهبة تتمنى تكون عندك؟", "لو رجعت للجامعة هتغير كليتك؟", "بتلجأ لمين في المشاكل؟", "أكبر فوبيا عندك؟", "عنوان كتاب عن حياتك؟", "نصيحة مستحيل تنساها؟", "إنسان محظوظ؟ وليه؟", "شيء مستحيل تسامح فيه؟", "تعريفك للنجاح؟", "بتهتم برأي الناس فيك؟"],
-            level3: ["حقيقة بتهرب منها؟", "تعتذر لمين دلوقتى؟", "حلم ضاع ولسه مأثر فيك؟", "راضي عن نفسك بنسبة كام؟", "الناس فاهماك غلط في إيه؟", "آخر يوم هتقضيه مع مين؟", "إيه اللي بيحسسك بالضعف؟", "مين الشخص اللي أمانك عنده؟", "موقف غير نظرتك للحياة؟", "خزلت حد كان واثق فيك؟", "أكبر إنجاز عملته؟", "ذكرى عايز تمسحها للأبد؟", "سؤال كنت خايف حد يسألهولك؟", "سؤال صراحة لينا كلنا؟", "أكبر سر خبيته عن أهلك؟"]
+            level1: ["أكلة ممكن تاكلها كل يوم؟", "لو بقيت شفاف هتعمل إيه؟", "أكتر موقف محرج في المواصلات؟", "تذكرة سفر لبلد واحدة؟", "لقب كنت بتكرهه وأنت صغير؟", "مين أكتر واحد رغاي فينا؟", "عادة غريبة بتعملها وأنت لوحدك؟", "لو بقيت بطل خارق قوتك إيه؟", "آخر حاجة عملت عنها سيرش؟", "دور بطل ولا شرير في فيلم؟", "أبلكيشن بيضيع وقتك؟", "تعيش في غابة ولا صحراء؟", "أغرب حاجة اشتريتها وندمت؟", "لو بقيت حيوان تحب تكون إيه؟", "أكتر كلمة بتقولها في يومك؟", "بتحب تنام واللمبة منورة ولا مطفية؟", "إيه هو أكتر إيموجي بتستخدمه؟", "لو كسبت رحلة للفضاء هتروح؟", "إيه هو لونك المفضل وليه؟", "لو معاك آلة زمن تروح المستقبل ولا الماضي؟", "أكتر كرتون كنت بتحبه وأنت صغير؟", "بتعرف تطبخ إيه بجد؟", "بتحب الشتاء ولا الصيف؟", "أكتر صوت بيعصبك؟", "لو صحيت لقيت معاك مليون جنيه؟", "إيه هي موهبتك السرية؟", "بتحب القهوة ولا الشاي؟", "مين هو مثلك الأعلى في العيلة؟", "إيه أكتر حاجة بتضحكك؟", "لو بقيت غير مرئي هتروح فين؟", "أكتر رياضة بتحب تتفرج عليها؟", "أطول مدة قعدتها من غير نوم؟", "بتعرف تغمض عين وتفتح التانية؟", "أكتر ريحة بتحبها؟", "لو هتغير اسمك هتسمي نفسك إيه؟"],
+            level2: ["صفة لو غيرتها هتكون أسعد؟", "قرار ندمت عليه؟", "مليون جنيه في شنطة، هتعمل إيه؟", "حاجة بتخليك تفقد أعصابك؟", "بتثق في الناس بسرعة؟", "موهبة تتمنى تكون عندك؟", "لو رجعت للجامعة هتغير كليتك؟", "بتلجأ لمين في المشاكل؟", "أكبر فوبيا عندك؟", "عنوان كتاب عن حياتك؟", "نصيحة مستحيل تنساها؟", "إنسان محظوظ؟ وليه؟", "شيء مستحيل تسامح فيه؟", "تعريفك للنجاح؟", "بتهتم برأي الناس فيك؟", "أكتر صفة بتجذبك في الشخص؟", "أكبر تحدي واجهته السنة دي؟", "بتعرف تقول 'لأ' بسهولة؟", "أكتر درس اتعلمته من الفشل؟", "تغير قانون واحد في البلد؟", "حاجة بتخليك فخور بنفسك؟", "بتصدق في الحب من أول نظرة؟", "القعدة لوحدك ولا مع الناس؟", "أكتر شيء بيحسسك بالأمان؟", "تعيش في زمن تاني تختار إيه؟", "المغامرة ولا الروتين؟", "أكتر صفة بكرها في الناس؟", "بتعرف تخبي مشاعرك؟", "أكتر قرار جريء أخدته؟", "بتسامح بسهولة؟", "طريقتك في التعبير عن الزعل؟", "التفاصيل ولا الشكل العام؟", "حاجة مستحيل تتنازل عنها؟", "بتخاف من الوحدة؟", "أكتر فيلم أثر في تفكيرك؟"],
+            level3: ["حقيقة بتهرب منها؟", "تعتذر لمين دلوقتى؟", "حلم ضاع ولسه مأثر فيك؟", "راضي عن نفسك بنسبة كام؟", "الناس فاهماك غلط في إيه؟", "آخر يوم هتقضيه مع مين؟", "إيه اللي بيحسسك بالضعف؟", "مين الشخص اللي أمانك عنده؟", "موقف غير نظرتك للحياة؟", "خزلت حد كان واثق فيك؟", "أكبر إنجاز عملته؟", "ذكرى عايز تمسحها للأبد؟", "سؤال كنت خايف حد يسألهولك؟", "سؤال صراحة لينا كلنا؟", "أكبر سر خبيته عن أهلك؟", "عمرك حسيت إنك مظلوم؟", "الحاجة اللي بتخليك تعيط؟", "حياتك بكلمة واحدة؟", "أكتر حاجة بتندم عليها؟", "شخص جرحك ومستحيل تنسى؟", "إيه اللي مخليك صامد؟", "بتحب نفسك بجد؟", "أغلى حاجة ضاعت منك؟", "ترجع طفل بنفس حياتك؟", "تمنيت تكون شخص تاني؟ مين؟", "الحاجة اللي بتكسر قلبك؟", "بتخاف من بكرة؟", "أكبر غلطة ومحدش عرفها؟", "بتحس إنك كبرت قبل أوانك؟", "حلم مستعد تضحي عشانه؟", "مين الشخص اللي غير حياتك؟", "بتثق في حد بنسبة 100%؟", "الشعور اللي بيسيطر عليك؟", "لو هتموت بكرة إيه أكتر ندم؟", "بتعرف تلاقي السعادة وسط الحزن؟"]
         };
-        const dares = ["اتصل بحد وقوله 'كسبت 50 ألف' 📞", "ارقص بلدي 30 ثانية 💃", "نط 15 مرة وصوت زي البطة 🦆", "سيلفي مضحك لجروب العيلة 🤳", "لهجة خليجي جولة كاملة 🇸🇦", "ارسم شنب على وشك بالقلم 🖋️", "اغني 'ستو أنا' بإحساس 🎤", "اعمل 10 ضغط حالاً 🏋️"];
+        const dares = ["اتصل بحد وقوله 'كسبت 50 ألف' 📞", "ارقص بلدي 30 ثانية 💃", "نط 15 مرة وصوت زي البطة 🦆", "سيلفي مضحك لجروب العيلة 🤳", "لهجة خليجي جولة كاملة 🇸🇦", "ارسم شنب على وشك بالقلم 🖋️", "اغني 'ستو أنا' بإحساس 🎤", "اعمل 10 ضغط حالاً 🏋️", "قلد صوت فنان مشهور 🎬"];
 
         // --- Game Logic ---
         let questions = [];
@@ -259,7 +335,7 @@
         let timerInterval = null;
         let powerMultiplier = 1;
         let answeredIndices = new Set();
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fadfada-legendary';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fadfada-legendary-v2';
 
         Object.keys(rawQuestions).forEach((lvl, idx) => {
             rawQuestions[lvl].forEach(q => {
@@ -274,20 +350,24 @@
         function addPlayerInput() {
             const container = document.getElementById('player-inputs');
             const div = document.createElement('div');
-            div.className = "flex gap-2 items-center bg-white p-2 rounded-2xl shadow-sm border animate-fade-in";
+            div.className = "flex gap-2 items-center bg-white/60 backdrop-blur p-2 rounded-2xl shadow-sm border border-white animate-fade-in";
             div.innerHTML = `
-                <select class="avatar-select text-2xl p-2 bg-gray-50 rounded-xl outline-none">
+                <select class="avatar-select text-2xl p-2 bg-white/40 rounded-xl outline-none">
                     <option>👻</option><option>🦁</option><option>🔥</option><option>👑</option><option>👽</option>
                 </select>
-                <input type="text" placeholder="اسم اللاعب الجديد" class="player-name-input flex-grow p-3 rounded-xl outline-none font-bold">
+                <input type="text" placeholder="اسم اللاعب الجديد" class="player-name-input flex-grow p-3 bg-transparent outline-none font-bold">
+                <button onclick="this.parentElement.remove()" class="text-red-300 p-2 hover:text-red-500">✕</button>
             `;
             container.appendChild(div);
+        }
+
+        function toggleSettings() {
+            document.getElementById('modal-settings').classList.toggle('hidden');
         }
 
         function initGame() {
             const names = document.querySelectorAll('.player-name-input');
             const avatars = document.querySelectorAll('.avatar-select');
-            
             players = Array.from(names).map((n, i) => ({
                 name: n.value.trim() || `لاعب ${i+1}`,
                 avatar: avatars[i].value,
@@ -295,9 +375,7 @@
                 dares: 0,
                 powers: { skip: true, double: true }
             }));
-
             if (players.length < 2) return alert("اللمة ما بتكملش من غير لاعبين! 🤓");
-            
             document.getElementById('screen-setup').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
             saveToStorage();
@@ -316,8 +394,8 @@
                         <div class="font-black text-gray-800 truncate text-sm">${p.name}</div>
                         <div class="text-2xl font-black text-indigo-600">${p.score}<span class="text-xs">ن</span></div>
                         <div class="flex gap-2 mt-2 justify-center">
-                            <span class="${p.powers.skip ? 'opacity-100' : 'opacity-20 grayscale'} text-sm">🏃</span>
-                            <span class="${p.powers.double ? 'opacity-100' : 'opacity-20 grayscale'} text-sm">⚡</span>
+                            <span class="${p.powers.skip ? 'opacity-100' : 'opacity-20 grayscale'} text-sm" title="زحلقة">🏃</span>
+                            <span class="${p.powers.double ? 'opacity-100' : 'opacity-20 grayscale'} text-sm" title="دبل">⚡</span>
                         </div>
                     </div>
                 `;
@@ -331,10 +409,15 @@
             const sliceAngle = (2 * Math.PI) / sections;
             ctx.clearRect(0,0,800,800);
             for(let i=0; i<sections; i++) {
+                const angle = i * sliceAngle;
                 ctx.beginPath(); ctx.moveTo(400,400);
-                ctx.arc(400,400,390, i*sliceAngle, (i+1)*sliceAngle);
-                ctx.fillStyle = answeredIndices.has(i) ? '#f1f5f9' : colors[i % colors.length];
-                ctx.fill(); ctx.strokeStyle = "white"; ctx.lineWidth = 1; ctx.stroke();
+                ctx.arc(400,400,390, angle, angle + sliceAngle);
+                const grd = ctx.createRadialGradient(400, 400, 50, 400, 400, 400);
+                const baseColor = answeredIndices.has(i) ? '#cbd5e1' : colors[i % colors.length];
+                grd.addColorStop(0, "white");
+                grd.addColorStop(1, baseColor);
+                ctx.fillStyle = grd;
+                ctx.fill(); ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 1; ctx.stroke();
             }
         }
 
@@ -343,22 +426,17 @@
             isSpinning = true;
             document.getElementById('spin-btn').disabled = true;
             document.getElementById('spin-btn').innerText = "الحظ بيتحضر... 🔥";
-
-            const extra = Math.floor(Math.random() * 360) + 1800;
+            const extra = Math.floor(Math.random() * 360) + 2160;
             currentRotation += extra;
-            
-            // Sound simulation during spin
             let lastTickAngle = 0;
             const spinAnim = setInterval(() => {
                 const currentAngle = (currentRotation * (Date.now() % 5000 / 5000)) % 360;
-                if(Math.abs(currentAngle - lastTickAngle) > (360/sections)) {
+                if(Math.abs(currentAngle - lastTickAngle) > (360/questions.length)) {
                     sounds.tick();
                     lastTickAngle = currentAngle;
                 }
             }, 50);
-
             canvas.style.transform = `rotate(${currentRotation}deg)`;
-
             setTimeout(() => {
                 clearInterval(spinAnim);
                 isSpinning = false;
@@ -377,16 +455,19 @@
             const overlay = document.getElementById('question-overlay');
             const card = document.getElementById('question-card');
             
-            const themes = ["", "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)", "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)", "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)"];
-            document.body.style.background = themes[q.level];
+            // Dynamic Background Color based on Level
+            const themes = ["", "#f0f9ff", "#f5f3ff", "#fff1f2"];
+            const blobColors = ["", "#818cf8", "#a78bfa", "#f43f5e"];
+            
+            document.body.style.backgroundColor = themes[q.level];
+            document.getElementById('blob-1').style.background = blobColors[q.level];
+            document.getElementById('blob-3').style.background = blobColors[q.level];
 
             document.getElementById('q-text').innerText = q.text;
             document.getElementById('q-points-badge').innerText = `${q.points} نقطة`;
-            
             const p = players[currentPlayerIndex];
             document.getElementById('p-double').disabled = !p.powers.double;
             document.getElementById('p-skip').disabled = !p.powers.skip;
-
             overlay.classList.remove('hidden');
             setTimeout(() => card.classList.replace('scale-90', 'scale-100'), 10);
             startTimer();
@@ -397,14 +478,13 @@
             const display = document.getElementById('timer-display');
             display.innerText = left;
             display.classList.remove('timer-shake');
-
             timerInterval = setInterval(() => {
                 left--;
                 display.innerText = left;
                 if(left <= 5) {
                     display.classList.add('timer-shake');
                     sounds.timer();
-                    if(navigator.vibrate) navigator.vibrate(50);
+                    if(document.getElementById('setting-vibrate').checked && navigator.vibrate) navigator.vibrate(50);
                 }
                 if(left <= 0) { clearInterval(timerInterval); handleResponse(false); }
             }, 1000);
@@ -441,7 +521,7 @@
                 p.score = Math.max(0, p.score - (activeQuestion.points * powerMultiplier));
                 p.dares++;
                 sounds.fail();
-                logAction(`❌ ${p.name} كش وانسحب!`);
+                logAction(`❌ ${p.name} كش وانسحب! (-${activeQuestion.points * powerMultiplier}ن)`);
                 activateDare();
             }
         }
@@ -490,10 +570,7 @@
             const stats = document.getElementById('final-stats');
             container.innerHTML = '';
             stats.innerHTML = '';
-
-            // Layout: 2, 1, 3
             const displayOrder = [sorted[1], sorted[0], sorted[2]].filter(p => p !== undefined);
-            
             displayOrder.forEach((p, idx) => {
                 const rank = p === sorted[0] ? 1 : (p === sorted[1] ? 2 : 3);
                 const item = document.createElement('div');
@@ -505,17 +582,14 @@
                 `;
                 container.appendChild(item);
             });
-
-            // Extra stats
             sorted.slice(3).forEach((p, i) => {
                 stats.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl font-bold">
+                    <div class="flex justify-between items-center bg-white/40 p-4 rounded-2xl font-bold border border-white">
                         <span>#${i+4} ${p.avatar} ${p.name}</span>
                         <span class="text-indigo-600">${p.score}ن</span>
                     </div>
                 `;
             });
-
             document.getElementById('screen-game').classList.add('hidden');
             document.getElementById('screen-final').classList.remove('hidden');
             confetti({ particleCount: 400, spread: 120, origin: { y: 0.4 } });
@@ -534,7 +608,6 @@
             location.reload();
         }
 
-        // Initialize from storage if exists
         window.onload = () => {
             const saved = localStorage.getItem(appId);
             if(saved) {
