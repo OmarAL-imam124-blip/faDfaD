@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فضفضة - الإصدار الأسطوري</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --indigo-primary: #6366f1;
+            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-gradient);
+            color: #1e293b;
+            overflow-x: hidden;
+            transition: background 0.8s ease;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .wheel-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin: 0 auto;
+        }
+        #wheel-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+        .pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 40px;
+            background: #ef4444;
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+            z-index: 40;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
+        }
+        .player-card.active {
+            border: 3px solid var(--indigo-primary);
+            background: white;
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.15);
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .timer-shake { animation: shake 0.2s infinite; color: #ef4444 !important; }
+        
+        /* Podium Styles */
+        .podium-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            transition: all 0.5s ease;
+        }
+        .podium-base {
+            width: 80px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: white;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.1);
+        }
+        .rank-1 .podium-base { height: 120px; background: #fbbf24; }
+        .rank-2 .podium-base { height: 90px; background: #94a3b8; }
+        .rank-3 .podium-base { height: 60px; background: #b45309; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-bounce:active { transform: scale(0.92); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="app" class="flex-grow flex flex-col items-center justify-center p-4 max-w-2xl mx-auto w-full">
+        
+        <!-- Screen 1: Player Setup -->
+        <div id="screen-setup" class="w-full text-center space-y-8 animate-fade-in">
+            <div class="space-y-4">
+                <div class="text-8xl mb-4">🏆</div>
+                <h1 class="text-6xl font-black text-indigo-600 tracking-tighter">فضفضة: أسطوري</h1>
+                <p class="text-gray-500 font-bold">لعبة الصراحة والمنافسة رقم #1 في مصر</p>
+            </div>
+            
+            <div id="player-inputs" class="space-y-4 max-h-60 overflow-y-auto p-2 no-scrollbar">
+                <!-- Initial Players -->
+                <div class="flex gap-2 items-center bg-white p-2 rounded-2xl shadow-sm border">
+                    <select class="avatar-select text-2xl p-2 bg-gray-50 rounded-xl outline-none">
+                        <option>😎</option><option>🐱</option><option>🦁</option><option>👻</option><option>🔥</option><option>👑</option><option>👽</option>
+                    </select>
+                    <input type="text" placeholder="اسم اللاعب الأول" class="player-name-input flex-grow p-3 rounded-xl outline-none font-bold">
+                </div>
+                <div class="flex gap-2 items-center bg-white p-2 rounded-2xl shadow-sm border">
+                    <select class="avatar-select text-2xl p-2 bg-gray-50 rounded-xl outline-none">
+                        <option>🦁</option><option>😎</option><option>🐱</option><option>👻</option><option>🔥</option><option>👑</option><option>👽</option>
+                    </select>
+                    <input type="text" placeholder="اسم اللاعب الثاني" class="player-name-input flex-grow p-3 rounded-xl outline-none font-bold">
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                <button onclick="addPlayerInput()" class="text-indigo-600 font-black text-sm hover:underline">+ ضيف حد تاني هيشرفنا</button>
+                <button onclick="initGame()" class="bg-indigo-600 text-white text-xl font-black py-5 rounded-[2rem] shadow-2xl transition btn-bounce w-full border-b-8 border-indigo-800">
+                    يلا بينا على الفضفضة! 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Game Dashboard -->
+        <div id="screen-game" class="hidden w-full space-y-6">
+            <!-- Scoreboard -->
+            <div id="scoreboard" class="flex gap-4 overflow-x-auto p-4 no-scrollbar items-center">
+                <!-- Players injected here -->
+            </div>
+
+            <div class="text-center relative">
+                <div id="turn-banner" class="inline-block glass px-10 py-3 rounded-full font-black text-indigo-700 shadow-md border border-indigo-100 mb-6">
+                    الدور على: <span id="current-player-display" class="text-indigo-900">...</span>
+                </div>
+                
+                <div class="wheel-container">
+                    <div class="pointer"></div>
+                    <canvas id="wheel-canvas" width="800" height="800"></canvas>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full shadow-2xl z-20 flex items-center justify-center font-black text-2xl text-indigo-600">🎡</div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <button id="spin-btn" onclick="spin()" class="bg-indigo-600 text-white text-2xl font-black py-5 rounded-[2rem] shadow-2xl transition btn-bounce w-full border-b-8 border-indigo-800">
+                    لف واكسب النقط! 🎢
+                </button>
+                
+                <div class="flex justify-between items-center px-2">
+                    <div class="text-xs font-bold text-gray-400">📜 السجل:</div>
+                    <button onclick="confirmEndGame()" class="text-xs font-bold text-red-400 hover:text-red-600">إنهـاء اللعب 🏁</button>
+                </div>
+                <div class="glass rounded-2xl p-4 text-xs font-bold text-gray-500 h-24 overflow-y-auto no-scrollbar border border-white shadow-inner" id="game-log">
+                    <div>📢 مستعدين؟ أول لفة هي اللي هتبدأ الحكاية!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Immersive Question Overlay -->
+        <div id="question-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+            <div class="absolute inset-0 bg-indigo-950/80 backdrop-blur-lg"></div>
+            <div id="question-card" class="relative bg-white rounded-[3.5rem] p-10 md:p-14 w-full max-w-lg text-center space-y-10 shadow-2xl scale-90 transition-transform duration-300">
+                
+                <!-- Timer Pulse -->
+                <div id="timer-ring" class="absolute -top-12 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full bg-white flex flex-col items-center justify-center shadow-2xl border-4 border-indigo-50">
+                    <span id="timer-display" class="text-5xl font-black text-indigo-600">30</span>
+                </div>
+
+                <div class="space-y-2 pt-10">
+                    <div id="q-points-badge" class="inline-block px-6 py-1.5 bg-yellow-400 text-yellow-900 rounded-full font-black text-sm uppercase">10 نقطة</div>
+                    <div id="q-text" class="text-2xl md:text-4xl font-black text-gray-800 leading-tight min-h-[160px] flex items-center justify-center italic">...</div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button id="p-double" onclick="usePower('double')" class="flex-1 flex flex-col items-center gap-1 p-4 rounded-3xl border-2 border-yellow-100 bg-yellow-50 btn-bounce disabled:opacity-20 transition">
+                        <span class="text-2xl">⚡</span>
+                        <span class="text-xs font-black">X2 نقط</span>
+                    </button>
+                    <button id="p-skip" onclick="usePower('skip')" class="flex-1 flex flex-col items-center gap-1 p-4 rounded-3xl border-2 border-blue-100 bg-blue-50 btn-bounce disabled:opacity-20 transition">
+                        <span class="text-2xl">🏃</span>
+                        <span class="text-xs font-black">زحلقة</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <button onclick="handleResponse(true)" class="w-full py-6 bg-green-500 text-white rounded-3xl font-black text-2xl shadow-2xl btn-bounce">جاوبت بصراحة ✅</button>
+                    <button onclick="handleResponse(false)" class="w-full py-4 bg-red-50 text-red-600 border-2 border-red-100 rounded-3xl font-bold btn-bounce">انسحاب وعقاب 👹</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 4: Legendary Podium -->
+        <div id="screen-final" class="hidden w-full space-y-10 animate-fade-in text-center">
+            <div class="bg-white rounded-[4rem] p-12 shadow-2xl space-y-10">
+                <div class="text-8xl">🏅</div>
+                <h2 class="text-5xl font-black text-gray-800 tracking-tighter">منصة الأساطير</h2>
+                
+                <div id="podium-container" class="flex justify-center items-end gap-4 h-64 px-4">
+                    <!-- Podium items will be injected here -->
+                </div>
+
+                <div id="final-stats" class="space-y-4 pt-6 border-t border-gray-100">
+                    <!-- Other players ranking here -->
+                </div>
+
+                <button onclick="resetGame()" class="w-full py-6 bg-indigo-600 text-white rounded-3xl font-black text-2xl btn-bounce shadow-xl">لعبة جديدة؟ 🔄</button>
+            </div>
+        </div>
+
+        <!-- Modal: Dare -->
+        <div id="modal-dare" class="fixed inset-0 bg-black/95 z-[60] flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-[3rem] p-12 max-w-sm w-full text-center space-y-8 border-[12px] border-red-500">
+                <div class="text-8xl">💀</div>
+                <div class="text-red-600 font-black text-2xl uppercase">عقاب الهروب</div>
+                <div id="dare-body" class="text-3xl font-black text-gray-800 italic leading-snug">...</div>
+                <button onclick="closeDare()" class="w-full py-6 bg-red-600 text-white rounded-3xl font-black text-xl btn-bounce">عملته والله 😭</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Sound Engine (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, type, duration, vol = 0.1) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sounds = {
+            tick: () => playTone(600, 'sine', 0.1, 0.05),
+            win: () => { playTone(500, 'sine', 0.2); setTimeout(() => playTone(800, 'sine', 0.4), 100); },
+            fail: () => { playTone(200, 'square', 0.3); playTone(150, 'square', 0.4); },
+            timer: () => playTone(1000, 'sine', 0.05, 0.02)
+        };
+
+        // --- Database ---
+        const rawQuestions = {
+            level1: ["أكلة ممكن تاكلها كل يوم؟", "لو بقيت شفاف هتعمل إيه؟", "أكتر موقف محرج في المواصلات؟", "تذكرة سفر لبلد واحدة؟", "لقب كنت بتكرهه وأنت صغير؟", "مين أكتر واحد رغاي فينا؟", "عادة غريبة بتعملها وأنت لوحدك؟", "لو بقيت بطل خارق قوتك إيه؟", "آخر حاجة عملت عنها سيرش؟", "دور بطل ولا شرير في فيلم؟", "أبلكيشن بيضيع وقتك؟", "تعيش في غابة ولا صحراء؟", "أغرب حاجة اشتريتها وندمت؟", "لو بقيت حيوان تحب تكون إيه؟", "أكتر كلمة بتقولها في يومك؟"],
+            level2: ["صفة لو غيرتها هتكون أسعد؟", "قرار ندمت عليه؟", "مليون جنيه في شنطة، هتعمل إيه؟", "حاجة بتخليك تفقد أعصابك؟", "بتثق في الناس بسرعة؟", "موهبة تتمنى تكون عندك؟", "لو رجعت للجامعة هتغير كليتك؟", "بتلجأ لمين في المشاكل؟", "أكبر فوبيا عندك؟", "عنوان كتاب عن حياتك؟", "نصيحة مستحيل تنساها؟", "إنسان محظوظ؟ وليه؟", "شيء مستحيل تسامح فيه؟", "تعريفك للنجاح؟", "بتهتم برأي الناس فيك؟"],
+            level3: ["حقيقة بتهرب منها؟", "تعتذر لمين دلوقتى؟", "حلم ضاع ولسه مأثر فيك؟", "راضي عن نفسك بنسبة كام؟", "الناس فاهماك غلط في إيه؟", "آخر يوم هتقضيه مع مين؟", "إيه اللي بيحسسك بالضعف؟", "مين الشخص اللي أمانك عنده؟", "موقف غير نظرتك للحياة؟", "خزلت حد كان واثق فيك؟", "أكبر إنجاز عملته؟", "ذكرى عايز تمسحها للأبد؟", "سؤال كنت خايف حد يسألهولك؟", "سؤال صراحة لينا كلنا؟", "أكبر سر خبيته عن أهلك؟"]
+        };
+        const dares = ["اتصل بحد وقوله 'كسبت 50 ألف' 📞", "ارقص بلدي 30 ثانية 💃", "نط 15 مرة وصوت زي البطة 🦆", "سيلفي مضحك لجروب العيلة 🤳", "لهجة خليجي جولة كاملة 🇸🇦", "ارسم شنب على وشك بالقلم 🖋️", "اغني 'ستو أنا' بإحساس 🎤", "اعمل 10 ضغط حالاً 🏋️"];
+
+        // --- Game Logic ---
+        let questions = [];
+        let players = [];
+        let currentPlayerIndex = 0;
+        let isSpinning = false;
+        let currentRotation = 0;
+        let activeQuestion = null;
+        let timerInterval = null;
+        let powerMultiplier = 1;
+        let answeredIndices = new Set();
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fadfada-legendary';
+
+        Object.keys(rawQuestions).forEach((lvl, idx) => {
+            rawQuestions[lvl].forEach(q => {
+                questions.push({ text: q, level: idx + 1, points: [10, 25, 50][idx] });
+            });
+        });
+
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+        const colors = ['#4f46e5', '#818cf8', '#6366f1', '#c7d2fe', '#4338ca', '#a78bfa'];
+
+        function addPlayerInput() {
+            const container = document.getElementById('player-inputs');
+            const div = document.createElement('div');
+            div.className = "flex gap-2 items-center bg-white p-2 rounded-2xl shadow-sm border animate-fade-in";
+            div.innerHTML = `
+                <select class="avatar-select text-2xl p-2 bg-gray-50 rounded-xl outline-none">
+                    <option>👻</option><option>🦁</option><option>🔥</option><option>👑</option><option>👽</option>
+                </select>
+                <input type="text" placeholder="اسم اللاعب الجديد" class="player-name-input flex-grow p-3 rounded-xl outline-none font-bold">
+            `;
+            container.appendChild(div);
+        }
+
+        function initGame() {
+            const names = document.querySelectorAll('.player-name-input');
+            const avatars = document.querySelectorAll('.avatar-select');
+            
+            players = Array.from(names).map((n, i) => ({
+                name: n.value.trim() || `لاعب ${i+1}`,
+                avatar: avatars[i].value,
+                score: 0,
+                dares: 0,
+                powers: { skip: true, double: true }
+            }));
+
+            if (players.length < 2) return alert("اللمة ما بتكملش من غير لاعبين! 🤓");
+            
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            saveToStorage();
+            updateUI();
+            drawWheel();
+        }
+
+        function updateUI() {
+            const container = document.getElementById('scoreboard');
+            container.innerHTML = '';
+            players.forEach((p, idx) => {
+                const active = idx === currentPlayerIndex;
+                container.innerHTML += `
+                    <div class="player-card min-w-[160px] p-6 rounded-[2.5rem] glass transition-all duration-500 border-2 ${active ? 'active' : 'border-transparent opacity-50'}">
+                        <div class="text-4xl mb-1">${p.avatar}</div>
+                        <div class="font-black text-gray-800 truncate text-sm">${p.name}</div>
+                        <div class="text-2xl font-black text-indigo-600">${p.score}<span class="text-xs">ن</span></div>
+                        <div class="flex gap-2 mt-2 justify-center">
+                            <span class="${p.powers.skip ? 'opacity-100' : 'opacity-20 grayscale'} text-sm">🏃</span>
+                            <span class="${p.powers.double ? 'opacity-100' : 'opacity-20 grayscale'} text-sm">⚡</span>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('current-player-display').innerText = players[currentPlayerIndex].name;
+            saveToStorage();
+        }
+
+        function drawWheel() {
+            const sections = questions.length;
+            const sliceAngle = (2 * Math.PI) / sections;
+            ctx.clearRect(0,0,800,800);
+            for(let i=0; i<sections; i++) {
+                ctx.beginPath(); ctx.moveTo(400,400);
+                ctx.arc(400,400,390, i*sliceAngle, (i+1)*sliceAngle);
+                ctx.fillStyle = answeredIndices.has(i) ? '#f1f5f9' : colors[i % colors.length];
+                ctx.fill(); ctx.strokeStyle = "white"; ctx.lineWidth = 1; ctx.stroke();
+            }
+        }
+
+        function spin() {
+            if(isSpinning) return;
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+            document.getElementById('spin-btn').innerText = "الحظ بيتحضر... 🔥";
+
+            const extra = Math.floor(Math.random() * 360) + 1800;
+            currentRotation += extra;
+            
+            // Sound simulation during spin
+            let lastTickAngle = 0;
+            const spinAnim = setInterval(() => {
+                const currentAngle = (currentRotation * (Date.now() % 5000 / 5000)) % 360;
+                if(Math.abs(currentAngle - lastTickAngle) > (360/sections)) {
+                    sounds.tick();
+                    lastTickAngle = currentAngle;
+                }
+            }, 50);
+
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            setTimeout(() => {
+                clearInterval(spinAnim);
+                isSpinning = false;
+                document.getElementById('spin-btn').disabled = false;
+                document.getElementById('spin-btn').innerText = "لف واكسب النقط! 🎡";
+                const deg = currentRotation % 360;
+                const idx = Math.floor(((360 - deg + 270) % 360) / (360 / questions.length));
+                activeQuestion = { ...questions[idx], index: idx };
+                showQuestion();
+            }, 5000);
+        }
+
+        function showQuestion() {
+            powerMultiplier = 1;
+            const q = activeQuestion;
+            const overlay = document.getElementById('question-overlay');
+            const card = document.getElementById('question-card');
+            
+            const themes = ["", "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)", "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)", "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)"];
+            document.body.style.background = themes[q.level];
+
+            document.getElementById('q-text').innerText = q.text;
+            document.getElementById('q-points-badge').innerText = `${q.points} نقطة`;
+            
+            const p = players[currentPlayerIndex];
+            document.getElementById('p-double').disabled = !p.powers.double;
+            document.getElementById('p-skip').disabled = !p.powers.skip;
+
+            overlay.classList.remove('hidden');
+            setTimeout(() => card.classList.replace('scale-90', 'scale-100'), 10);
+            startTimer();
+        }
+
+        function startTimer() {
+            let left = 30;
+            const display = document.getElementById('timer-display');
+            display.innerText = left;
+            display.classList.remove('timer-shake');
+
+            timerInterval = setInterval(() => {
+                left--;
+                display.innerText = left;
+                if(left <= 5) {
+                    display.classList.add('timer-shake');
+                    sounds.timer();
+                    if(navigator.vibrate) navigator.vibrate(50);
+                }
+                if(left <= 0) { clearInterval(timerInterval); handleResponse(false); }
+            }, 1000);
+        }
+
+        function usePower(type) {
+            const p = players[currentPlayerIndex];
+            if(type === 'double') {
+                p.powers.double = false;
+                powerMultiplier = 2;
+                document.getElementById('q-points-badge').innerText = `${activeQuestion.points * 2} نقطة (X2) ⚡`;
+                document.getElementById('p-double').disabled = true;
+            } else {
+                p.powers.skip = false;
+                clearInterval(timerInterval);
+                closeQuestion();
+                logAction(`🏃 ${p.name} زحلق السؤال بذكاء!`);
+                nextTurn();
+            }
+        }
+
+        function handleResponse(success) {
+            clearInterval(timerInterval);
+            const p = players[currentPlayerIndex];
+            if(success) {
+                const pts = activeQuestion.points * powerMultiplier;
+                p.score += pts;
+                sounds.win();
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                logAction(`✅ ${p.name} جاوب بطل وخد ${pts} نقطة!`);
+                closeQuestion();
+                nextTurn();
+            } else {
+                p.score = Math.max(0, p.score - (activeQuestion.points * powerMultiplier));
+                p.dares++;
+                sounds.fail();
+                logAction(`❌ ${p.name} كش وانسحب!`);
+                activateDare();
+            }
+        }
+
+        function activateDare() {
+            const dare = dares[Math.floor(Math.random() * dares.length)];
+            document.getElementById('dare-body').innerText = dare;
+            document.getElementById('modal-dare').classList.remove('hidden');
+        }
+
+        function closeDare() {
+            document.getElementById('modal-dare').classList.add('hidden');
+            closeQuestion();
+            nextTurn();
+        }
+
+        function closeQuestion() {
+            document.getElementById('question-overlay').classList.add('hidden');
+            document.getElementById('question-card').classList.replace('scale-100', 'scale-90');
+            answeredIndices.add(activeQuestion.index);
+        }
+
+        function nextTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            updateUI();
+            drawWheel();
+        }
+
+        function logAction(msg) {
+            const log = document.getElementById('game-log');
+            const entry = document.createElement('div');
+            entry.className = "py-1 border-b border-gray-100 last:border-0";
+            entry.innerText = msg;
+            log.prepend(entry);
+        }
+
+        function confirmEndGame() {
+            if(confirm("ميداليات الأساطير مستنية.. متأكد عايزين تنهوا اللعب دلوقت؟")) {
+                showFinalPodium();
+            }
+        }
+
+        function showFinalPodium() {
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            const container = document.getElementById('podium-container');
+            const stats = document.getElementById('final-stats');
+            container.innerHTML = '';
+            stats.innerHTML = '';
+
+            // Layout: 2, 1, 3
+            const displayOrder = [sorted[1], sorted[0], sorted[2]].filter(p => p !== undefined);
+            
+            displayOrder.forEach((p, idx) => {
+                const rank = p === sorted[0] ? 1 : (p === sorted[1] ? 2 : 3);
+                const item = document.createElement('div');
+                item.className = `podium-item rank-${rank}`;
+                item.innerHTML = `
+                    <div class="text-4xl">${p.avatar}</div>
+                    <div class="font-black text-xs mb-1 truncate w-16">${p.name}</div>
+                    <div class="podium-base">#${rank}</div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Extra stats
+            sorted.slice(3).forEach((p, i) => {
+                stats.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl font-bold">
+                        <span>#${i+4} ${p.avatar} ${p.name}</span>
+                        <span class="text-indigo-600">${p.score}ن</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-final').classList.remove('hidden');
+            confetti({ particleCount: 400, spread: 120, origin: { y: 0.4 } });
+        }
+
+        function saveToStorage() {
+            localStorage.setItem(appId, JSON.stringify({
+                players,
+                currentIndex: currentPlayerIndex,
+                answered: Array.from(answeredIndices)
+            }));
+        }
+
+        function resetGame() {
+            localStorage.removeItem(appId);
+            location.reload();
+        }
+
+        // Initialize from storage if exists
+        window.onload = () => {
+            const saved = localStorage.getItem(appId);
+            if(saved) {
+                const data = JSON.parse(saved);
+                players = data.players;
+                currentPlayerIndex = data.currentIndex;
+                answeredIndices = new Set(data.answered);
+                document.getElementById('screen-setup').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('hidden');
+                updateUI();
+                drawWheel();
+            }
+        };
+    </script>
+</body>
+</html>
