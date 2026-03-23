@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فضفضة PRO - تجربة الألعاب القصوى</title>
+    <title>فضفضة ULTIMATE - النسخة الأسطورية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --accent: #f43f5e;
-            --gold: #fbbf24;
+            --p-color: #6366f1;
+            --s-color: #f43f5e;
+            --g-color: #fbbf24;
+            --bg-dark: #020617;
         }
         body {
             font-family: 'Cairo', sans-serif;
-            background: #0f172a; /* Dark gaming background */
+            background: var(--bg-dark);
             color: #f8fafc;
             overflow-x: hidden;
             user-select: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Gaming Animated Background */
-        .game-bg {
+        /* Cinematic Space Background */
+        .universe-bg {
             position: fixed;
             inset: 0;
             z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%);
             overflow: hidden;
         }
         .star {
@@ -34,228 +36,257 @@
             background: white;
             border-radius: 50%;
             opacity: 0.3;
-            animation: twinkle var(--d) infinite;
+            animation: float-star var(--d) infinite linear;
         }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.2); }
+        @keyframes float-star {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100vh); }
         }
 
-        /* Wheel Physics & Neon */
-        .wheel-neon {
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.3);
+        /* Professional Glass UI */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Wheel Mastery */
+        .wheel-outer {
+            padding: 10px;
+            background: linear-gradient(135deg, var(--p-color), #4338ca);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
         }
         #wheel-canvas {
-            transition: transform 5s cubic-bezier(0.2, 0, 0.1, 1);
+            transition: transform 6s cubic-bezier(0.15, 0, 0.05, 1);
         }
 
-        /* Overdrive / Fire Mode */
-        .on-fire {
-            animation: fire-glow 0.8s infinite alternate;
-            border-color: var(--accent) !important;
+        /* Player Experience Glow */
+        .lvl-up-glow {
+            position: relative;
         }
-        @keyframes fire-glow {
-            from { box-shadow: 0 0 10px #f43f5e; }
-            to { box-shadow: 0 0 30px #e11d48, 0 0 10px #fb7185; }
+        .lvl-up-glow::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 2rem;
+            background: linear-gradient(45deg, var(--p-color), var(--s-color));
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .player-card.active::after { opacity: 0.6; }
+
+        /* Ultimate Power Animation */
+        .ultimate-ready {
+            animation: ultimate-pulse 1s infinite alternate;
+        }
+        @keyframes ultimate-pulse {
+            from { box-shadow: 0 0 10px var(--g-color); }
+            to { box-shadow: 0 0 40px var(--g-color), 0 0 10px white; }
         }
 
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .btn-game {
-            background: linear-gradient(180deg, var(--primary) 0%, #4338ca 100%);
-            box-shadow: 0 4px 0 #312e81;
+        /* Utility */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-action {
+            background: linear-gradient(180deg, var(--p-color) 0%, #4338ca 100%);
+            box-shadow: 0 6px 0 #312e81;
             transition: all 0.1s;
         }
-        .btn-game:active {
-            transform: translateY(2px);
+        .btn-action:active {
+            transform: translateY(4px);
             box-shadow: 0 2px 0 #312e81;
         }
-
-        /* Podium Layout */
-        .podium-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 1rem;
-            height: 200px;
+        .screen-shake { animation: shake 0.3s infinite; }
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(3px,3px); }
+            50% { transform: translate(-3px,-3px); }
+            75% { transform: translate(3px,-3px); }
+            100% { transform: translate(0,0); }
         }
-        .podium-pillar {
-            width: 80px;
-            border-radius: 10px 10px 0 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            padding-bottom: 10px;
-            font-weight: 900;
-            color: white;
-        }
-        .pillar-1 { height: 100%; background: linear-gradient(#fbbf24, #b45309); }
-        .pillar-2 { height: 75%; background: linear-gradient(#94a3b8, #475569); }
-        .pillar-3 { height: 50%; background: linear-gradient(#cd7f32, #78350f); }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4">
+<body class="min-h-screen flex flex-col items-center">
 
-    <div class="game-bg" id="star-field"></div>
+    <div class="universe-bg" id="star-field"></div>
 
-    <!-- Top UI: Scores & Settings -->
-    <div class="w-full max-w-4xl flex justify-between items-start z-10 mb-4">
-        <button onclick="toggleSettings()" class="glass-panel p-3 rounded-2xl border-white/20 hover:bg-white/10 transition">⚙️</button>
-        <div id="mini-leaderboard" class="flex gap-2 overflow-x-auto no-scrollbar max-w-[70%] py-1">
-            <!-- Dynamic Players -->
+    <!-- HUD (Heads Up Display) -->
+    <header class="w-full max-w-5xl flex justify-between items-center z-20 p-6">
+        <div class="flex gap-3">
+            <button onclick="toggleSettings()" class="glass-card p-4 rounded-2xl hover:bg-white/10 transition text-2xl">⚙️</button>
+            <div id="session-timer" class="glass-card px-5 py-3 rounded-2xl font-black text-indigo-400">00:00</div>
+        </div>
+        <div id="players-hud" class="flex gap-4 overflow-x-auto no-scrollbar py-2 px-4 glass-card rounded-[2.5rem] max-w-[70%]">
+            <!-- Injected Players -->
+        </div>
+    </header>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center hidden p-4">
+        <div class="relative glass-card p-8 rounded-[2.5rem] w-full max-w-xs space-y-6">
+            <h3 class="text-xl font-black text-center">إعدادات اللعبة ⚙️</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5">
+                    <span class="font-bold text-sm">المؤثرات الصوتية</span>
+                    <input type="checkbox" id="setting-sound" checked class="w-6 h-6 accent-indigo-500">
+                </div>
+            </div>
+            <button onclick="toggleSettings()" class="btn-action w-full py-4 rounded-2xl font-bold">حفظ وإغلاق</button>
         </div>
     </div>
 
-    <!-- Main Game Container -->
-    <main id="app" class="w-full max-w-2xl flex-grow flex flex-col items-center justify-center z-10 relative">
+    <main id="app" class="w-full max-w-2xl flex-grow flex flex-col items-center justify-center z-10 p-4">
         
-        <!-- START SCREEN -->
-        <div id="screen-start" class="text-center space-y-10 animate-fade-in">
-            <div class="relative inline-block">
-                <h1 class="text-7xl font-black text-white italic tracking-tighter italic">فضفضة <span class="text-indigo-500">PRO</span></h1>
-                <div class="absolute -top-6 -right-10 bg-rose-500 text-[10px] font-bold px-2 py-1 rounded-full uppercase animate-bounce">New Update</div>
+        <!-- INITIAL SETUP -->
+        <div id="screen-setup" class="w-full text-center space-y-8 animate-fade-in">
+            <div class="space-y-4">
+                <h1 class="text-7xl md:text-8xl font-black text-white italic tracking-tighter drop-shadow-2xl">فضفضة <span class="text-indigo-500">ULTIMATE</span></h1>
+                <p class="text-indigo-400 font-bold tracking-[0.3em] text-xs uppercase">أقوى نسخة في المجرة</p>
             </div>
             
-            <div id="player-setup-box" class="glass-panel p-8 rounded-[2.5rem] space-y-6 w-full max-w-md mx-auto">
-                <p class="text-indigo-300 font-bold">ضيف اللعيبة عشان التحدي يبدأ</p>
-                <div id="player-list-setup" class="space-y-3">
-                    <div class="flex gap-2">
-                        <input type="text" placeholder="اسم اللاعب 1" class="player-input w-full bg-slate-800/50 p-4 rounded-2xl border border-white/10 outline-none focus:border-indigo-500 font-bold text-center">
+            <div class="glass-card p-10 rounded-[3.5rem] space-y-6 w-full max-w-lg mx-auto border-white/5">
+                <div class="space-y-4" id="setup-inputs">
+                    <p class="text-gray-400 font-bold">مين الأساطير اللي داخلين المواجهة؟</p>
+                    <div id="player-rows" class="space-y-4">
+                        <!-- Dynamic Rows -->
                     </div>
-                    <div class="flex gap-2">
-                        <input type="text" placeholder="اسم اللاعب 2" class="player-input w-full bg-slate-800/50 p-4 rounded-2xl border border-white/10 outline-none focus:border-indigo-500 font-bold text-center">
+                    <button onclick="addPlayerRow()" class="text-indigo-400 text-sm font-black hover:text-indigo-300 transition">+ ضيف بطل جديد</button>
+                    <button onclick="startMission()" class="btn-action w-full py-6 rounded-[2.5rem] text-3xl font-black text-white mt-4">إبـدأ المهمة 🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- THE ARENA -->
+        <div id="screen-arena" class="hidden w-full space-y-10 text-center">
+            <div class="space-y-2">
+                <div id="turn-txt" class="text-indigo-500 font-black text-sm uppercase tracking-widest">الدور دلوقتي على</div>
+                <h2 id="active-player-name" class="text-6xl font-black text-white drop-shadow-2xl italic tracking-tight">...</h2>
+            </div>
+
+            <div class="relative flex justify-center py-6">
+                <div class="wheel-outer shadow-2xl">
+                    <canvas id="wheel-canvas" width="800" height="800" class="w-[320px] h-[320px] md:w-[450px] md:h-[450px] rounded-full"></canvas>
+                </div>
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 w-12 h-14 bg-rose-500 z-30" style="clip-path: polygon(100% 0, 0 0, 50% 100%); filter: drop-shadow(0 5px 15px rgba(244,63,94,0.5));"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 glass-card rounded-full z-20 flex items-center justify-center font-black text-xl text-white border-2 border-indigo-400 shadow-2xl">GO</div>
+            </div>
+
+            <div class="flex flex-col items-center gap-6">
+                <button id="spin-btn" onclick="spinToWin()" class="btn-action w-full max-w-md py-6 rounded-[2.5rem] text-3xl font-black shadow-2xl">لـف العجلة! 🎡</button>
+                <div class="flex gap-4">
+                    <button onclick="confirmEnd()" class="text-gray-500 text-xs font-bold hover:text-rose-400 transition">إعلان النتائج 🏆</button>
+                </div>
+            </div>
+
+            <div class="glass-card p-5 rounded-3xl text-[10px] text-gray-400 font-bold h-24 overflow-y-auto no-scrollbar italic border-white/5" id="game-logs">
+                <div class="text-indigo-400">أهلاً بيك في الساحة.. خليك صريح عشان تكسب!</div>
+            </div>
+        </div>
+
+        <!-- TRUTH OVERLAY -->
+        <div id="truth-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+            <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-3xl"></div>
+            <div id="q-card" class="relative glass-card rounded-[4rem] p-10 md:p-14 w-full max-w-xl text-center space-y-10 scale-90 transition-all duration-500 border-white/10">
+                
+                <div id="q-timer" class="absolute -top-14 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-white text-slate-900 flex flex-col items-center justify-center shadow-2xl border-[10px] border-indigo-600">
+                    <span id="timer-num" class="text-5xl font-black">30</span>
+                    <span class="text-[8px] font-bold uppercase tracking-widest text-indigo-500">sec</span>
+                </div>
+                
+                <div class="space-y-4 pt-10">
+                    <div id="q-cat" class="inline-block px-6 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 mb-2">الفئة: صراحة</div>
+                    <p id="q-text" class="text-3xl md:text-5xl font-black leading-tight text-white drop-shadow-md">...</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="glass-card p-4 rounded-3xl border-white/5">
+                        <p class="text-[8px] text-gray-500 uppercase">النقاط</p>
+                        <p id="q-pts" class="text-2xl font-black text-yellow-400">50</p>
                     </div>
-                </div>
-                <button onclick="addInput()" class="text-indigo-400 text-sm font-bold">+ لاعب كمان</button>
-                <button onclick="startGame()" class="btn-game w-full py-5 rounded-3xl text-2xl font-black shadow-lg">إدخـول الحلبة 🏁</button>
-            </div>
-        </div>
-
-        <!-- GAME SCREEN -->
-        <div id="screen-game" class="hidden w-full space-y-8 animate-fade-in text-center">
-            <div class="space-y-1">
-                <div id="turn-display" class="text-indigo-400 font-black text-sm uppercase tracking-widest">الدور على</div>
-                <h2 id="current-player-name" class="text-4xl font-black text-white">...</h2>
-            </div>
-
-            <div class="relative flex justify-center py-4">
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-10 bg-rose-500 pointer-events-none z-30" style="clip-path: polygon(100% 0, 0 0, 50% 100%);"></div>
-                <div class="wheel-container wheel-neon rounded-full p-2 bg-indigo-500/10">
-                    <canvas id="wheel-canvas" width="800" height="800" class="w-[320px] h-[320px] md:w-[400px] md:h-[400px]"></canvas>
-                </div>
-            </div>
-
-            <button id="spin-btn" onclick="spinWheel()" class="btn-game w-full max-w-sm py-5 rounded-3xl text-2xl font-black">لـف العجلة 🎡</button>
-            
-            <div class="glass-panel p-4 rounded-2xl text-xs text-slate-400 font-bold h-20 overflow-y-auto no-scrollbar italic" id="game-log">
-                <div>اللعبة بدأت.. يا ترى مين اللي قلبه جاحد؟</div>
-            </div>
-        </div>
-
-        <!-- QUESTION OVERLAY -->
-        <div id="question-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-            <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-xl"></div>
-            <div id="q-card" class="relative glass-panel rounded-[3.5rem] p-10 md:p-14 w-full max-w-lg text-center space-y-8 scale-90 transition-all duration-300">
-                
-                <div id="q-timer" class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-white text-slate-900 flex items-center justify-center text-4xl font-black shadow-2xl border-4 border-indigo-500">30</div>
-                
-                <div class="space-y-2 pt-6">
-                    <span id="q-points" class="bg-gold text-slate-900 px-4 py-1 rounded-full font-black text-xs">50ن</span>
-                    <p id="q-text" class="text-2xl md:text-3xl font-black leading-snug">...</p>
+                    <div class="glass-card p-4 rounded-3xl border-white/5">
+                        <p class="text-[8px] text-gray-500 uppercase">XP</p>
+                        <p id="q-xp" class="text-2xl font-black text-emerald-400">+100</p>
+                    </div>
+                    <div id="ultimate-slot" class="glass-card p-4 rounded-3xl border-white/5 flex items-center justify-center text-2xl grayscale">💣</div>
                 </div>
 
-                <!-- Powers -->
-                <div class="flex gap-3 justify-center">
-                    <button onclick="usePower('double')" id="p-double" class="flex-1 p-3 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 font-bold text-xs hover:bg-indigo-500/40 transition">⚡ دبل سكور</button>
-                    <button onclick="usePower('shield')" id="p-shield" class="flex-1 p-3 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 font-bold text-xs hover:bg-emerald-500/40 transition">🛡️ درع حماية</button>
+                <!-- Strategic Powers -->
+                <div class="flex gap-4 justify-center">
+                    <button onclick="activatePower('double')" id="p-x2" class="flex-1 py-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 font-black text-xs hover:bg-amber-500/30 transition-all">⚡ دبل سكور</button>
+                    <button onclick="activatePower('bomb')" id="p-bomb" class="flex-1 py-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 font-black text-xs hover:bg-rose-500/30 transition-all hidden">💣 قنبلة صراحة</button>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4">
-                    <button onclick="handleAction(true)" class="btn-game py-6 rounded-3xl text-2xl font-black bg-emerald-600">جاوبت بصراحة ✅</button>
-                    <button onclick="handleAction(false)" class="py-4 rounded-2xl bg-white/5 border border-white/10 font-bold text-rose-400 hover:bg-white/10 transition">مش قادر أجاوب (تحدي) 👺</button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <button onclick="resolve(true)" class="btn-action py-7 rounded-[2.5rem] text-3xl font-black bg-emerald-600 border-emerald-800 text-white shadow-emerald-500/20">صـريح ✅</button>
+                    <button onclick="resolve(false)" class="py-4 rounded-[2rem] bg-white/5 border border-white/10 font-bold text-rose-400 hover:bg-white/10 transition">ههرب (عقاب) 👺</button>
                 </div>
             </div>
         </div>
 
-        <!-- DARE MODAL -->
-        <div id="modal-dare" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
+        <!-- PUNISHMENT MODAL -->
+        <div id="modal-punish" class="fixed inset-0 z-[60] flex items-center justify-center p-4 hidden">
             <div class="absolute inset-0 bg-rose-950/95 backdrop-blur-md"></div>
-            <div class="glass-panel p-10 rounded-[3rem] border-rose-500/50 max-w-sm w-full text-center space-y-6 animate-fade-in">
-                <div class="text-7xl">👺</div>
-                <h3 class="text-2xl font-black text-rose-500">عقاب الهروب!</h3>
-                <p id="dare-text" class="text-xl font-bold italic leading-relaxed">...</p>
-                <button onclick="closeDare()" class="btn-game w-full py-5 rounded-2xl bg-rose-600 border-rose-800 font-black">عملته خلاص 😭</button>
+            <div class="glass-card p-12 rounded-[3.5rem] border-rose-500/40 max-w-md w-full text-center space-y-8 animate-fade-in">
+                <div class="text-8xl animate-bounce">👺</div>
+                <h3 class="text-4xl font-black text-rose-500 italic">عقاب الهروب!</h3>
+                <p id="punish-txt" class="text-2xl font-bold italic leading-relaxed text-white px-4">...</p>
+                <button onclick="closePunish()" class="btn-action w-full py-6 rounded-[2rem] bg-rose-600 border-rose-900 font-black text-2xl">تم التنفيذ 😭</button>
             </div>
         </div>
 
-        <!-- FINAL PODIUM SCREEN -->
-        <div id="screen-final" class="hidden w-full space-y-10 animate-fade-in">
-            <div class="glass-panel p-10 rounded-[4rem] text-center space-y-8">
-                <h2 class="text-4xl font-black italic">منصة الأساطير 🏆</h2>
-                <div id="podium-area" class="podium-container">
-                    <!-- Podium elements -->
+        <!-- THE PODIUM (END SCREEN) -->
+        <div id="screen-end" class="hidden w-full space-y-12 animate-fade-in text-center">
+            <h2 class="text-7xl font-black italic text-white drop-shadow-2xl">أساطير الصراحة 🏆</h2>
+            <div class="glass-card p-10 rounded-[4rem] space-y-10 border-white/5">
+                <div id="podium-display" class="flex items-end justify-center gap-6 h-72">
+                    <!-- Dynamic Podium -->
                 </div>
-                <div id="other-rankings" class="space-y-3 pt-6 border-t border-white/10"></div>
-                <button onclick="location.reload()" class="btn-game w-full py-5 rounded-3xl font-black">لعبة جديدة 🔄</button>
+                <div id="final-leaderboard" class="space-y-4 pt-8 border-t border-white/10 max-h-60 overflow-y-auto no-scrollbar"></div>
+                <button onclick="location.reload()" class="btn-action w-full py-7 rounded-[3rem] font-black text-2xl">مهمة جديدة 🔄</button>
             </div>
         </div>
 
     </main>
 
-    <!-- Settings Modal -->
-    <div id="settings-panel" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="toggleSettings()"></div>
-        <div class="relative glass-panel p-8 rounded-[2.5rem] w-full max-w-xs space-y-6">
-            <h3 class="text-xl font-black text-center">إعدادات اللعبة</h3>
-            <div class="space-y-4">
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
-                    <span class="font-bold">المؤثرات الصوتية</span>
-                    <input type="checkbox" id="set-sound" checked class="w-6 h-6 accent-indigo-500">
-                </div>
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl">
-                    <span class="font-bold">الاهتزاز</span>
-                    <input type="checkbox" id="set-vibrate" checked class="w-6 h-6 accent-indigo-500">
-                </div>
-            </div>
-            <button onclick="toggleSettings()" class="w-full py-4 bg-indigo-600 rounded-2xl font-bold">حفظ</button>
-        </div>
-    </div>
-
     <script>
-        // --- GAME ENGINE DATA ---
+        // --- ASSETS & CONFIG ---
+        const EMOJIS = ['😎', '👻', '🔥', '👑', '👽', '🎮', '🐯', '🤖', '👾', '🚀', '🐱', '🃏'];
+        const CATEGORIES = [
+            { name: "صراحة نارية", color: "#f43f5e" },
+            { name: "أسرار غامضة", color: "#8b5cf6" },
+            { name: "ضحك وهزار", color: "#fbbf24" },
+            { name: "شغل وحياة", color: "#3b82f6" }
+        ];
+
         const QUESTIONS = {
-            l1: ["أكلة مستحيل تزهق منها؟", "لو بقيت شفاف هتعمل إيه؟", "أغرب موقف حصلك في المواصلات؟", "بلد تتمنى تعيش فيها؟", "لقب كنت بتكرهه وأنت صغير؟", "مين أكتر واحد رغاي فينا؟", "عادة غريبة بتعملها لوحدك؟", "لو بقيت بطل خارق قوتك إيه؟", "آخر حاجة دورت عليها في جوجل؟", "تحب تكون بطل ولا شرير في فيلم؟", "أبلكيشن بيسرق وقتك؟", "تعيش في غابة ولا صحراء؟", "أغرب حاجة اشتريتها وندمت؟", "كلمة بتقولها كتير في يومك؟", "لو صحيت لقيت معاك مليون جنيه؟", "موهبتك السرية إيه؟", "قهوة ولا شاي؟", "أكتر حاجة بتضحكك؟", "لو هتغير اسمك هتختار إيه؟", "أطول مدة قعدتها من غير نوم؟"],
-            l2: ["صفة لو غيرتها هتكون أسعد؟", "قرار ندمت عليه جداً؟", "أكتر حاجة بتعصبك فوراً؟", "بتثق في الناس بسرعة؟", "موهبة كنت تتمنى تكون عندك؟", "لو رجع بيك الزمن هتغير كليتك؟", "مين الشخص اللي بتلجأله في المشاكل؟", "إيه أكبر فوبيا عندك؟", "عنوان كتاب عن حياتك؟", "نصيحة مستحيل تنساها؟", "محظوظ ولا منحوس؟", "حاجة مستحيل تسامح فيها؟", "بتهتم برأي الناس؟", "أكتر صفة بتجذبك في الناس؟", "تغير قانون واحد في بلدك؟", "بتعرف تقول 'لأ'؟", "مغامرة ولا روتين؟", "بتخبي مشاعرك؟", "أجرأ قرار أخدته؟", "بتسامح بسهولة؟"],
-            l3: ["حقيقة بتهرب منها؟", "تعتذر لمين دلوقتى؟", "حلم ضاع ولسه مأثر فيك؟", "راضي عن نفسك بنسبة كام؟", "الناس فاهماك غلط في إيه؟", "آخر يوم هتقضيه مع مين؟", "إيه اللي بيحسسك بالضعف؟", "مين أمانك في الدنيا؟", "موقف غير نظرتك للحياة؟", "خزلت حد كان واثق فيك؟", "أكبر إنجاز عملته؟", "ذكرى عايز تمسحها للأبد؟", "سؤال كنت خايف حد يسأله؟", "أكبر سر خبيته عن أهلك؟", "عمرك حسيت إنك مظلوم؟", "إيه اللي بيخليك تعيط؟", "حياتك في كلمة واحدة؟", "شخص جرحك ومستحيل تنسى؟", "بتحب نفسك بجد؟", "لو هتموت بكرة إيه أكتر ندم؟"]
+            lvl1: ["أكلة مستحيل تزهق منها؟", "لو بقيت شفاف هتعمل إيه؟", "أكتر موقف محرج في المواصلات؟", "بلد تتمنى تعيش فيها؟", "لقب كنت بتكرهه وأنت صغير؟", "مين أكتر واحد رغاي فينا؟", "عادة غريبة بتعملها لوحدك؟", "لو بقيت بطل خارق قوتك إيه؟", "آخر حاجة دورت عليها في جوجل؟", "تحب تكون بطل ولا شرير في فيلم؟", "أبلكيشن بيسرق وقتك؟", "تعيش في غابة ولا صحراء؟", "أغرب حاجة اشتريتها وندمت؟", "كلمة بتقولها كتير في يومك؟", "لو صحيت لقيت معاك مليون جنيه؟", "موهبتك السرية إيه؟", "قهوة ولا شاي؟", "أكتر حاجة بتضحكك؟", "لو هتغير اسمك تختار إيه؟", "أطول مدة قعدتها من غير نوم؟"],
+            lvl2: ["صفة لو غيرتها هتكون أسعد؟", "قرار ندمت عليه جداً؟", "أكتر حاجة بتعصبك فوراً؟", "بتثق في الناس بسرعة؟", "موهبة كنت تتمنى تكون عندك؟", "لو رجع بيك الزمن هتغير كليتك؟", "مين الشخص اللي بتلجأله في المشاكل؟", "إيه أكبر فوبيا عندك؟", "عنوان كتاب عن حياتك؟", "نصيحة مستحيل تنساها؟", "محظوظ ولا منحوس؟", "حاجة مستحيل تسامح فيها؟", "بتهتم برأي الناس؟", "أكتر صفة بتجذبك في الناس؟", "تغير قانون واحد في بلدك؟", "بتعرف تقول 'لأ'؟", "مغامرة ولا روتين؟", "بتخبي مشاعرك؟", "أجرأ قرار أخدته؟", "بتسامح بسهولة؟"],
+            lvl3: ["حقيقة بتهرب منها بقالك فترة؟", "تعتذر لمين دلوقتى؟", "حلم ضاع ولسه مأثر فيك؟", "راضي عن نفسك بنسبة كام؟", "الناس فاهماك غلط في إيه؟", "آخر يوم هتقضيه مع مين؟", "إيه اللي بيحسسك بالضعف؟", "مين أمانك في الدنيا؟", "موقف غير نظرتك للحياة؟", "خزلت حد كان واثق فيك؟", "أكبر إنجاز عملته؟", "ذكرى عايز تمسحها للأبد؟", "سؤال كنت خايف حد يسأله؟", "أكبر سر خبيته عن أهلك؟", "عمرك حسيت إنك مظلوم؟", "إيه اللي بيخليك تعيط؟", "حياتك في كلمة واحدة؟", "شخص جرحك ومستحيل تنسى؟", "بتحب نفسك بجد؟", "لو هتموت بكرة إيه أكتر ندم؟"]
         };
 
-        const DARES = ["اتصل بحد وقوله 'كسبت 50 ألف' 📞", "ارقص بلدي 30 ثانية 💃", "نط 15 مرة وصوت زي البطة 🦆", "سيلفي مضحك لجروب العيلة 🤳", "لهجة خليجي جولة كاملة 🇸🇦", "ارسم شنب على وشك 🖋️", "غني 'ستو أنا' بإحساس 🎤", "اعمل 10 ضغط حالاً 🏋️", "قلد صوت فنان مشهور 🎬", "امسح آخر صورة في الاستديو (حد يختارها) 🖼️"];
+        const PUNISHMENTS = ["اتصل بحد وقوله 'كسبت 50 ألف' 📞", "ارقص بلدي 30 ثانية 💃", "نط 15 مرة وصوت زي البطة 🦆", "سيلفي مضحك لجروب العيلة 🤳", "لهجة خليجي جولة كاملة 🇸🇦", "ارسم شنب على وشك 🖋️", "غني 'ستو أنا' بإحساس عالي 🎤", "اعمل 10 ضغط حالاً 🏋️", "قلد صوت فنان مشهور 🎬"];
 
-        // --- CORE STATE ---
+        // --- GAME ENGINE STATE ---
         let players = [];
-        let currentPlayerIdx = 0;
-        let answeredIds = new Set();
+        let currentIdx = 0;
         let isSpinning = false;
         let rotation = 0;
-        let activeQ = null;
-        let timerInt = null;
+        let currentQ = null;
+        let timer = null;
         let multiplier = 1;
-        let shieldActive = false;
+        let bombActive = false;
+        let sessionStartTime = null;
 
         const canvas = document.getElementById('wheel-canvas');
         const ctx = canvas.getContext('2d');
 
-        // --- AUDIO ENGINE (Web Audio) ---
+        // --- AUDIO ENGINE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playTone(freq, type, dur, vol = 0.1) {
-            if(!document.getElementById('set-sound').checked) return;
+        function playSfx(freq, type, dur, vol = 0.1) {
+            if(!document.getElementById('setting-sound').checked) return;
             const osc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
             osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
@@ -265,16 +296,16 @@
             osc.start(); osc.stop(audioCtx.currentTime + dur);
         }
 
-        const sounds = {
-            tick: () => playTone(600, 'sine', 0.1, 0.05),
-            win: () => { playTone(500, 'sine', 0.2); setTimeout(() => playTone(800, 'sine', 0.4), 100); },
-            fail: () => { playTone(200, 'square', 0.3); playTone(150, 'square', 0.4); },
-            timer: (f) => playTone(f, 'sine', 0.05, 0.03),
-            drum: () => { for(let i=0; i<15; i++) setTimeout(()=>playTone(100+Math.random()*40, 'square', 0.1, 0.02), i*200); }
+        const SFX = {
+            tick: () => playSfx(600, 'sine', 0.1, 0.04),
+            win: () => { playSfx(500, 'sine', 0.2); setTimeout(()=>playSfx(800, 'sine', 0.4), 100); },
+            fail: () => { playSfx(200, 'square', 0.3); playSfx(150, 'square', 0.4); },
+            timer: (f) => playSfx(f, 'sine', 0.05, 0.02),
+            levelup: () => { playSfx(400, 'sine', 0.1); setTimeout(()=>playSfx(600, 'sine', 0.1), 100); setTimeout(()=>playSfx(900, 'sine', 0.3), 200); }
         };
 
-        // --- FUNCTIONS ---
-        function createStars() {
+        // --- CORE FUNCTIONS ---
+        function createSpace() {
             const field = document.getElementById('star-field');
             for(let i=0; i<100; i++) {
                 const s = document.createElement('div');
@@ -283,241 +314,304 @@
                 s.style.top = Math.random()*100 + '%';
                 const size = Math.random()*3 + 'px';
                 s.style.width = size; s.style.height = size;
-                s.style.setProperty('--d', (Math.random()*3 + 2) + 's');
+                s.style.setProperty('--d', (Math.random()*10 + 5) + 's');
                 field.appendChild(s);
             }
         }
 
-        function addInput() {
-            const container = document.getElementById('player-list-setup');
-            const idx = container.children.length + 1;
-            const div = document.createElement('div');
-            div.className = "flex gap-2 animate-fade-in";
-            div.innerHTML = `<input type="text" placeholder="اسم اللاعب ${idx}" class="player-input w-full bg-slate-800/50 p-4 rounded-2xl border border-white/10 outline-none focus:border-indigo-500 font-bold text-center">`;
-            container.appendChild(div);
+        function toggleSettings() {
+            const modal = document.getElementById('modal-settings');
+            modal.classList.toggle('hidden');
         }
 
-        function startGame() {
-            const inputs = document.querySelectorAll('.player-input');
-            const avatars = ['😎', '🦁', '👻', '🔥', '👑', '👽', '🐱', '🎮'];
-            players = Array.from(inputs).map((i, idx) => ({
-                name: i.value.trim() || `لاعب ${idx+1}`,
-                avatar: avatars[idx % avatars.length],
+        function addPlayerRow() {
+            const container = document.getElementById('player-rows');
+            const idx = container.children.length;
+            const row = document.createElement('div');
+            row.className = "flex flex-col gap-3 p-5 glass-card rounded-[2rem] animate-fade-in";
+            row.innerHTML = `
+                <div class="flex gap-2">
+                    <select class="p-3 bg-white/5 rounded-xl text-2xl outline-none avatar-sel">
+                        ${EMOJIS.map(e => `<option>${e}</option>`).join('')}
+                    </select>
+                    <input type="text" placeholder="اسم البطل ${idx+1}" class="name-input w-full bg-transparent border-b border-white/10 p-3 outline-none font-black text-center text-white">
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function startMission() {
+            const rows = document.querySelectorAll('#player-rows > div');
+            players = Array.from(rows).map((row, i) => ({
+                name: row.querySelector('.name-input').value.trim() || `بطل ${i+1}`,
+                avatar: row.querySelector('.avatar-sel').value,
                 score: 0,
+                xp: 0,
+                lvl: 1,
                 streak: 0,
-                powers: { double: true, shield: true }
-            })).filter(p => p.name);
+                ultimateCharge: 0,
+                powers: { double: true }
+            }));
 
-            if(players.length < 2) return alert("لازم 2 لاعيبة على الأقل يا وحش!");
+            if(players.length < 2) return alert("لازم 2 لعيبة على الأقل يا أسطورة!");
             
-            document.getElementById('screen-start').classList.add('hidden');
-            document.getElementById('screen-game').classList.remove('hidden');
-            updateUI();
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-arena').classList.remove('hidden');
+            sessionStartTime = Date.now();
+            updateHUD();
             drawWheel();
+            startSessionTimer();
         }
 
-        function updateUI() {
-            const container = document.getElementById('mini-leaderboard');
+        function updateHUD() {
+            const container = document.getElementById('players-hud');
             container.innerHTML = '';
-            players.forEach((p, idx) => {
-                const active = idx === currentPlayerIdx;
+            players.forEach((p, i) => {
+                const active = i === currentIdx;
                 const card = document.createElement('div');
-                card.className = `player-card min-w-[120px] p-4 rounded-2xl glass-panel flex flex-col items-center transition-all ${active ? 'active on-fire' : 'opacity-50 scale-90'}`;
+                card.className = `player-card min-w-[140px] p-4 rounded-[2rem] glass-card flex flex-col items-center transition-all lvl-up-glow ${active ? 'active scale-110' : 'opacity-40 grayscale scale-90'}`;
                 card.innerHTML = `
-                    <div class="text-3xl">${p.avatar}</div>
-                    <div class="text-xs font-black truncate max-w-full">${p.name}</div>
-                    <div class="text-indigo-400 font-black">${p.score}ن</div>
-                    ${p.streak >= 3 ? `<div class="text-[10px] text-orange-500 font-black">🔥 STREAK x${p.streak}</div>` : ''}
+                    <div class="relative">
+                        <span class="text-4xl">${p.avatar}</span>
+                        <span class="absolute -top-2 -right-2 bg-indigo-600 text-[8px] px-1 rounded-full border border-white">Lvl ${p.lvl}</span>
+                    </div>
+                    <p class="text-[10px] font-black mt-1 text-white truncate w-full text-center">${p.name}</p>
+                    <p class="text-xs font-black text-indigo-400">${p.score}ن</p>
+                    <div class="w-full bg-white/5 h-1 mt-1 rounded-full overflow-hidden">
+                        <div class="bg-indigo-500 h-full transition-all" style="width: ${p.xp % 500 / 5}%"></div>
+                    </div>
                 `;
                 container.appendChild(card);
             });
-            document.getElementById('current-player-name').innerText = players[currentPlayerIdx].name;
+            document.getElementById('active-player-name').innerText = players[currentIdx].name;
         }
 
         function drawWheel() {
-            const total = 60; // Fixed visual slices for game feel
-            const angle = (2 * Math.PI) / total;
-            const colors = ['#4f46e5', '#818cf8', '#6366f1', '#4338ca'];
+            const totalSlices = 24; 
+            const angle = (2 * Math.PI) / totalSlices;
             ctx.clearRect(0,0,800,800);
-            for(let i=0; i<total; i++) {
+            for(let i=0; i<totalSlices; i++) {
                 ctx.beginPath(); ctx.moveTo(400,400);
                 ctx.arc(400,400,390, i*angle, (i+1)*angle);
-                ctx.fillStyle = colors[i % colors.length];
+                const grd = ctx.createRadialGradient(400, 400, 100, 400, 400, 400);
+                const cat = CATEGORIES[i % CATEGORIES.length];
+                grd.addColorStop(0, "#ffffff11");
+                grd.addColorStop(1, cat.color);
+                ctx.fillStyle = grd;
                 ctx.fill(); ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.stroke();
             }
         }
 
-        function spinWheel() {
+        function spinToWin() {
             if(isSpinning) return;
             isSpinning = true;
             document.getElementById('spin-btn').disabled = true;
-            sounds.drum();
             
-            const extra = 1800 + Math.random()*1800;
+            const extra = 2520 + Math.random()*2160; 
             rotation += extra;
             canvas.style.transform = `rotate(${rotation}deg)`;
 
             let lastTick = 0;
             const tickInt = setInterval(() => {
-                const current = (rotation * (Date.now() % 5000 / 5000)) % 360;
-                if(Math.abs(current - lastTick) > 10) { sounds.tick(); lastTick = current; }
+                const cur = (rotation * (Date.now() % 5000 / 5000)) % 360;
+                if(Math.abs(cur - lastTick) > 15) { SFX.tick(); lastTick = cur; }
             }, 50);
 
             setTimeout(() => {
                 clearInterval(tickInt);
                 isSpinning = false;
                 document.getElementById('spin-btn').disabled = false;
-                pickQuestion();
-            }, 5000);
+                prepareQuestion();
+            }, 6000);
         }
 
-        function pickQuestion() {
-            // Pick based on probability or sequence
-            const levels = ['l1', 'l2', 'l3'];
+        function prepareQuestion() {
+            const levels = ['lvl1', 'lvl2', 'lvl3'];
             const lvl = levels[Math.floor(Math.random()*3)];
             const qList = QUESTIONS[lvl];
-            const qText = qList[Math.floor(Math.random()*qList.length)];
-            const points = lvl === 'l1' ? 10 : (lvl === 'l2' ? 25 : 50);
+            const q = qList[Math.floor(Math.random()*qList.length)];
+            const pts = lvl === 'lvl1' ? 20 : (lvl === 'lvl2' ? 50 : 100);
+            const cat = CATEGORIES[Math.floor(Math.random()*CATEGORIES.length)];
             
-            activeQ = { text: qText, points, level: parseInt(lvl[1]) };
-            showQuestion();
+            currentQ = { text: q, pts, xp: pts * 2, cat, level: parseInt(lvl[3]) };
+            launchQuestion();
         }
 
-        function showQuestion() {
+        function launchQuestion() {
             multiplier = 1;
-            shieldActive = false;
-            const p = players[currentPlayerIdx];
+            bombActive = false;
+            const p = players[currentIdx];
             
-            document.getElementById('q-text').innerText = activeQ.text;
-            document.getElementById('q-points').innerText = `${activeQ.points}ن`;
-            document.getElementById('p-double').disabled = !p.powers.double;
-            document.getElementById('p-shield').disabled = !p.powers.shield;
+            document.getElementById('q-text').innerText = currentQ.text;
+            document.getElementById('q-pts').innerText = currentQ.pts;
+            document.getElementById('q-xp').innerText = `+${currentQ.xp}`;
+            document.getElementById('q-cat').innerText = `الفئة: ${currentQ.cat.name}`;
+            document.getElementById('q-cat').style.color = currentQ.cat.color;
             
-            const overlay = document.getElementById('question-overlay');
+            document.getElementById('p-x2').disabled = !p.powers.double;
+            document.getElementById('p-bomb').classList.toggle('hidden', p.ultimateCharge < 100);
+            document.getElementById('ultimate-slot').classList.toggle('ultimate-ready', p.ultimateCharge >= 100);
+            document.getElementById('ultimate-slot').classList.toggle('grayscale', p.ultimateCharge < 100);
+            
+            const overlay = document.getElementById('truth-overlay');
             const card = document.getElementById('q-card');
             overlay.classList.remove('hidden');
-            setTimeout(() => card.classList.remove('scale-90'), 10);
-            
+            if(currentQ.level === 3) card.classList.add('on-fire');
+            else card.classList.remove('on-fire');
+
+            setTimeout(() => card.classList.remove('scale-90'), 50);
             startTimer();
         }
 
         function startTimer() {
             let left = 30;
-            const display = document.getElementById('q-timer');
+            const display = document.getElementById('timer-num');
             display.innerText = left;
-            display.classList.remove('timer-shake');
+            document.body.classList.remove('screen-shake');
 
-            timerInt = setInterval(() => {
+            timer = setInterval(() => {
                 left--;
                 display.innerText = left;
                 if(left <= 5) {
-                    display.classList.add('timer-shake');
-                    sounds.timer(1000 + (5-left)*200);
-                    if(document.getElementById('set-vibrate').checked && navigator.vibrate) navigator.vibrate(100);
+                    SFX.timer(700 + (5-left)*200);
+                    document.body.classList.add('screen-shake');
                 }
-                if(left <= 0) { clearInterval(timerInt); handleAction(false); }
+                if(left <= 0) { clearInterval(timer); resolve(false); }
             }, 1000);
         }
 
-        function usePower(type) {
-            const p = players[currentPlayerIdx];
-            if(type === 'double' && p.powers.double) {
+        function activatePower(type) {
+            const p = players[currentIdx];
+            if(type === 'double') {
                 p.powers.double = false;
                 multiplier = 2;
-                document.getElementById('q-points').innerText = `${activeQ.points * 2}ن (X2!)`;
-                document.getElementById('p-double').disabled = true;
-                confetti({ particleCount: 40, colors: ['#fbbf24'] });
-            } else if(type === 'shield' && p.powers.shield) {
-                p.powers.shield = false;
-                shieldActive = true;
-                document.getElementById('p-shield').disabled = true;
+                document.getElementById('q-pts').innerText = currentQ.pts * 2;
+                document.getElementById('p-x2').disabled = true;
+                confetti({ particleCount: 40, colors: ['#facc15'] });
+            } else if(type === 'bomb') {
+                p.ultimateCharge = 0;
+                bombActive = true;
+                document.getElementById('p-bomb').classList.add('hidden');
+                confetti({ particleCount: 100, colors: ['#f43f5e'], spread: 100 });
             }
         }
 
-        function handleAction(success) {
-            clearInterval(timerInt);
-            const p = players[currentPlayerIdx];
-            const overlay = document.getElementById('question-overlay');
+        function resolve(success) {
+            clearInterval(timer);
+            document.body.classList.remove('screen-shake');
+            const p = players[currentIdx];
             
             if(success) {
+                const gainPts = currentQ.pts * multiplier;
+                p.score += gainPts;
+                p.xp += currentQ.xp;
                 p.streak++;
-                let bonus = p.streak >= 3 ? p.streak * 5 : 0;
-                const total = (activeQ.points * multiplier) + bonus;
-                p.score += total;
-                sounds.win();
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                log(`✅ ${p.name} جاوب واخد ${total} نقطة!`);
-                overlay.classList.add('hidden');
-                nextTurn();
-            } else {
-                if(!shieldActive) {
-                    p.score = Math.max(0, p.score - (activeQ.points * multiplier));
-                    p.streak = 0;
+                p.ultimateCharge = Math.min(100, p.ultimateCharge + 25);
+                
+                const newLvl = Math.floor(p.xp / 500) + 1;
+                if(newLvl > p.lvl) {
+                    p.lvl = newLvl;
+                    SFX.levelup();
+                    confetti({ particleCount: 200, colors: ['#6366f1', '#fbbf24'] });
                 }
-                sounds.fail();
-                log(`❌ ${p.name} انسحب ${shieldActive ? '(الدرع حماه)' : ''}`);
-                showDare();
+
+                SFX.win();
+                confetti({ particleCount: 150, origin: { y: 0.7 } });
+                log(`🚀 ${p.name} جاوب بطل! (+${gainPts}ن)`);
+                
+                hideQuestion();
+                nextPlayer();
+            } else {
+                p.score = Math.max(0, p.score - (currentQ.pts / 2));
+                p.streak = 0;
+                p.ultimateCharge = Math.max(0, p.ultimateCharge - 10);
+                SFX.fail();
+                log(`👺 ${p.name} كش وانسحب!`);
+                showPunishment();
             }
         }
 
-        function showDare() {
-            const dare = DARES[Math.floor(Math.random()*DARES.length)];
-            document.getElementById('dare-text').innerText = dare;
-            document.getElementById('modal-dare').classList.remove('hidden');
+        function showPunishment() {
+            const p = PUNISHMENTS[Math.floor(Math.random()*PUNISHMENTS.length)];
+            document.getElementById('punish-txt').innerText = p;
+            document.getElementById('modal-punish').classList.remove('hidden');
         }
 
-        function closeDare() {
-            document.getElementById('modal-dare').classList.add('hidden');
-            document.getElementById('question-overlay').classList.add('hidden');
-            nextTurn();
+        function closePunish() {
+            document.getElementById('modal-punish').classList.add('hidden');
+            hideQuestion();
+            nextPlayer();
         }
 
-        function nextTurn() {
-            currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
-            updateUI();
+        function hideQuestion() {
+            document.getElementById('truth-overlay').classList.add('hidden');
+            document.getElementById('q-card').classList.add('scale-90');
+        }
+
+        function nextPlayer() {
+            currentIdx = (currentIdx + 1) % players.length;
+            updateHUD();
         }
 
         function log(m) {
-            const l = document.getElementById('game-log');
-            const d = document.createElement('div');
-            d.innerText = m;
-            l.prepend(d);
+            const l = document.getElementById('game-logs');
+            const entry = document.createElement('div');
+            entry.innerText = m;
+            entry.className = "py-1 border-b border-white/5 animate-fade-in";
+            l.prepend(entry);
         }
 
-        function toggleSettings() {
-            document.getElementById('settings-panel').classList.toggle('hidden');
+        function startSessionTimer() {
+            setInterval(() => {
+                const diff = Date.now() - sessionStartTime;
+                const m = Math.floor(diff / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('session-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
         }
 
-        function confirmEndGame() {
-            if(confirm("ميداليات الأساطير مستنية.. ننهي اللعب دلوقت؟")) showFinal();
+        function confirmEnd() {
+            if(confirm("مستعد تعلن النتائج النهائية للأساطير؟")) showEnd();
         }
 
-        function showFinal() {
+        function showEnd() {
             const sorted = [...players].sort((a,b) => b.score - a.score);
-            const container = document.getElementById('podium-area');
-            const rankings = document.getElementById('other-rankings');
-            container.innerHTML = ''; rankings.innerHTML = '';
+            const podium = document.getElementById('podium-display');
+            const leaderboard = document.getElementById('final-leaderboard');
+            podium.innerHTML = ''; leaderboard.innerHTML = '';
 
             const order = [sorted[1], sorted[0], sorted[2]].filter(p => p);
             order.forEach(p => {
                 const rank = p === sorted[0] ? 1 : (p === sorted[1] ? 2 : 3);
                 const pillar = document.createElement('div');
-                pillar.className = `podium-pillar pillar-${rank}`;
-                pillar.innerHTML = `<div class="text-3xl">${p.avatar}</div><div class="text-[10px] truncate w-full px-1">${p.name}</div><div>#${rank}</div>`;
-                container.appendChild(pillar);
+                pillar.className = `podium-item rank-${rank} animate-fade-in`;
+                pillar.innerHTML = `
+                    <div class="text-6xl mb-2">${p.avatar}</div>
+                    <div class="text-[10px] font-black text-white truncate w-20 px-2">${p.name}</div>
+                    <div class="podium-base">#${rank}</div>
+                `;
+                podium.appendChild(pillar);
             });
 
-            sorted.slice(3).forEach((p, i) => {
-                rankings.innerHTML += `<div class="flex justify-between p-3 glass-panel rounded-xl"><span>#${i+4} ${p.name}</span><span>${p.score}ن</span></div>`;
+            sorted.forEach((p, i) => {
+                leaderboard.innerHTML += `
+                    <div class="flex justify-between items-center p-5 glass-card rounded-3xl border-white/5 animate-fade-in" style="animation-delay: ${i*0.1}s">
+                        <span class="font-black text-white italic">#${i+1} ${p.avatar} ${p.name}</span>
+                        <div class="text-right">
+                            <p class="text-[8px] text-gray-500 uppercase">النقاط النهائية</p>
+                            <span class="text-indigo-400 font-black">${p.score}ن</span>
+                        </div>
+                    </div>`;
             });
 
-            document.getElementById('screen-game').classList.add('hidden');
-            document.getElementById('screen-final').classList.remove('hidden');
-            confetti({ particleCount: 500, spread: 160, origin: { y: 0.3 } });
+            document.getElementById('screen-arena').classList.add('hidden');
+            document.getElementById('screen-end').classList.remove('hidden');
+            confetti({ particleCount: 800, spread: 200, origin: { y: 0.3 } });
         }
 
         window.onload = () => {
-            createStars();
+            createSpace();
+            addPlayerRow(); addPlayerRow();
         };
     </script>
 </body>
