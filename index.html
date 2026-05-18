@@ -1,793 +1,784 @@
-import React, { useState, useEffect, useRef } from 'react';
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إلى تسنيم 🌸</title>
+  
+  <!-- Tailwind CSS CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Premium Fonts (Amiri, Aref Ruqaa, Tajawal, Cinzel) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@200;300;400;500;700;900&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
 
-// Elegant Romantic Font Injection (Amiri, Aref Ruqaa, Tajawal)
-const injectPremiumFonts = () => {
-  if (typeof window !== 'undefined' && !document.getElementById('tasneem-cinematic-fonts')) {
-    const link = document.createElement('link');
-    link.id = 'tasneem-cinematic-fonts';
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@200;300;400;500;700;900&display=swap';
-    document.head.appendChild(link);
-  }
-};
-
-export default function App() {
-  const [hasStarted, setHasStarted] = useState(false);
-  const [introStep, setIntroStep] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [activeLightbox, setActiveLightbox] = useState(null);
-  const [secretOpen, setSecretOpen] = useState(false);
-  const [lightBurst, setLightBurst] = useState(false);
-  const [imageErrors, setImageErrors] = useState({});
-  const [activeLetterText, setActiveLetterText] = useState("");
-  const [letterIndex, setLetterIndex] = useState(0);
-  const [ytReady, setYtReady] = useState(false);
-
-  const canvasRef = useRef(null);
-  const ytPlayerRef = useRef(null); // Reference to YouTube Player instance
-
-  // All 6 provided premium image assets mapped exactly to GitHub URLs
-  const images = [
-    {
-      id: 1,
-      url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.19.42%20PM.jpeg",
-      desc: "طهر البراءة الموشحة بالأبيض البهي.",
-      title: "إشراقة نقاء 🌸",
-      rotate: "rotate-2 hover:rotate-0"
-    },
-    {
-      id: 2,
-      url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.19.43%20PM.jpeg",
-      desc: "نظرة دافئة تعيد صياغة السلام الداخلي للقلب.",
-      title: "سكون حالم ✨",
-      rotate: "-rotate-2 hover:rotate-0"
-    },
-    {
-      id: 3,
-      url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(1).jpeg",
-      desc: "جمال الأسود البهيج الذي يضفي هيبة كالملائكة.",
-      title: "وقار بهي 🌹",
-      rotate: "rotate-1 hover:rotate-0"
-    },
-    {
-      id: 4,
-      url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(2).jpeg",
-      desc: "ابتسامة زاهية تنسجم مع أوراق الورد المتناثرة.",
-      title: "أميرة الورد 🌷",
-      rotate: "-rotate-1 hover:rotate-0"
-    },
-    {
-      id: 5,
-      url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(3).jpeg",
-      desc: "ذكرى خاصة تمنيت لو أنها دامت إلى الأبد.",
-      title: "مكالمة الحب 📞",
-      rotate: "rotate-3 hover:rotate-0"
-    },
-    {
-      id: 6,
-      url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM.jpeg",
-      desc: "حضوركِ يملأ الفراغات بالطمأنينة التامة.",
-      title: "دفء الموطن 🏡",
-      rotate: "-rotate-3 hover:rotate-0"
-    }
-  ];
-
-  // Direct romantic letter from Omar to Tasneem (Typewriter dynamic text)
-  const fullLetterText = `إلى تسنيم، أميرتي الهادئة وربيع عمري..
-
-أنا لا أكتب كثيراً، لكن حين يتعلق الأمر بكِ، تُفتح في قلبي مساحات واسعة من البوح الصادق. أودّ أن أخبركِ بملء روحي وبكل يقين، أن حضوركِ البهي قد غيّر ملامح الأيام وصاغ لي شعوراً طالما بحثت عنه بين دروب الحياة الشاسعة.
-
-أحببتُ فيكِ رقة هدوءكِ الذي يحميني من صخب الدنيا، وعفويتكِ النقية التي لا تشوبها شائبة. وجودكِ معي ربيع دائم يزهو في صدري، ونور نقي يطرد كل عتمة وتعب. دمتِ لي وطناً صغيراً ألوذ إليه، وأجمل ما وهبني الرحمن في عمري..`;
-
-  const handleImageError = (id) => {
-    setImageErrors(prev => ({ ...prev, [id]: true }));
-  };
-
-  // Safe play invocation
-  const playGlobalAudio = () => {
-    if (ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === 'function') {
-      try {
-        ytPlayerRef.current.unMute();
-      } catch (e) {}
-      ytPlayerRef.current.playVideo();
-      setIsPlaying(true);
-    }
-  };
-
-  // Launch experience on start button click
-  const handleStartApp = () => {
-    setHasStarted(true);
-    playGlobalAudio();
-  };
-
-  // Sound play/pause toggle controls
-  const toggleSound = (e) => {
-    if (e) e.stopPropagation();
-    if (ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === 'function') {
-      if (isPlaying) {
-        ytPlayerRef.current.pauseVideo();
-        setIsPlaying(false);
-      } else {
-        playGlobalAudio();
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandPink: '#FFB6C1',
+            brandBlush: '#FFD6E0',
+            brandGold: '#FFE29A',
+            brandGreen: '#BFE7C2',
+            brandCream: '#FFF9F4',
+            brandLavender: '#E6D7FF',
+            brandBrown: '#5C4D4A',
+            brandDarkRose: '#a85b51',
+          }
+        }
       }
     }
-  };
+  </script>
 
-  const triggerSecretMessage = () => {
-    if (!secretOpen) {
-      setLightBurst(true);
-      setTimeout(() => setLightBurst(false), 1200);
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
     }
-    setSecretOpen(!secretOpen);
-  };
+    .font-amiri {
+      font-family: 'Amiri', serif;
+    }
+    .font-ruqaa {
+      font-family: 'Aref+Ruqaa', serif;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 1.2s ease-out forwards;
+    }
+    /* Polaroid Card Styling with soft spring shadows */
+    .polaroid-card {
+      background: white;
+      padding: 1.25rem;
+      padding-bottom: 2.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(255, 182, 193, 0.15);
+      border: 1px solid rgba(255, 182, 193, 0.2);
+      transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .polaroid-card:hover {
+      transform: translateY(-8px) scale(1.03) rotate(0deg) !important;
+      box-shadow: 0 20px 45px rgba(255, 182, 193, 0.35);
+      border-color: #dfb76c;
+    }
+  </style>
+</head>
+<body class="bg-brandCream text-brandBrown relative overflow-x-hidden selection:bg-brandPink/40 selection:text-brandBrown scroll-smooth">
 
-  // Font Injection, YouTube Iframe API Loader, and intro sequences
-  useEffect(() => {
-    injectPremiumFonts();
+  <!-- YOUTUBE IFRAME LAYER (Fullscreen Backdrop Video/Audio Source) -->
+  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden transition-opacity duration-1000">
+    <div id="video-backdrop-wrapper" class="w-full h-full transform scale-135 opacity-0 transition-all duration-[2000ms]">
+      <div id="youtube-video-backdrop" class="w-full h-full pointer-events-none"></div>
+    </div>
+    <!-- Soft elegant pastel sunrise gradients overlay for perfect text contrast and romantic warmth -->
+    <div class="absolute inset-0 bg-gradient-to-b from-brandBlush/50 via-brandCream/90 to-brandGold/30 pointer-events-none"></div>
+  </div>
 
-    // Opening scene animation timeouts
-    const introTimer1 = setTimeout(() => setIntroStep(1), 2000); // fade in line 2
-    const introTimer2 = setTimeout(() => setIntroStep(2), 4500); // fade in enter button
+  <!-- Ambient Light Blobs -->
+  <div class="fixed inset-0 pointer-events-none z-0">
+    <div class="absolute top-[10%] right-[5%] w-[450px] h-[450px] bg-brandGold/20 rounded-full blur-[130px] animate-pulse" style="animation-duration: 9s;"></div>
+    <div class="absolute bottom-[20%] left-[5%] w-[500px] h-[500px] bg-brandPink/15 rounded-full blur-[140px] animate-pulse" style="animation-duration: 11s;"></div>
+  </div>
 
-    // Load the YouTube API dynamically
-    const initPlayer = () => {
-      if (window.YT && window.YT.Player) {
-        ytPlayerRef.current = new window.YT.Player('youtube-video-backdrop', {
-          height: '100%',
-          width: '100%',
-          videoId: 'VZhN-xHt8mY', // Requested YouTube video ID
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            rel: 0,
-            showinfo: 0,
-            iv_load_policy: 3,
-            loop: 1,
-            playlist: 'VZhN-xHt8mY', // Needed for seamless looping
-            modestbranding: 1
+  <!-- Floating Canvas Layer for Blooming Petals -->
+  <canvas id="petals-canvas" class="fixed inset-0 pointer-events-none z-10 hidden"></canvas>
+
+  <!-- Floating Elegant Sound Control HUD (Tied to YouTube Player) -->
+  <div id="sound-hud" class="fixed bottom-6 left-6 z-50 bg-white/85 backdrop-blur-xl border border-brandPink/30 px-5 py-3 rounded-full flex items-center gap-4 shadow-[0_10px_35px_rgba(255,182,193,0.25)] transition-all duration-500 hover:border-brandGold/50 group hidden">
+    <button
+      onclick="toggleSound()"
+      class="w-10 h-10 rounded-full bg-brandPink/20 hover:bg-brandPink/35 text-[#b06a61] flex items-center justify-center transition-all duration-300 active:scale-90"
+      title="تحكم بالصوت"
+    >
+      <span id="sound-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+        </svg>
+      </span>
+    </button>
+    
+    <div class="flex flex-col text-right pl-3 select-none">
+      <span class="text-[10px] text-neutral-500 tracking-wider font-light">أنشودة الوفاء</span>
+      <span class="text-xs text-[#b06a61] font-medium">جادك الحب حنيناً</span>
+    </div>
+
+    <div id="audio-wave" class="flex items-end gap-[2.5px] h-3 w-5 pr-1">
+      <span class="w-[2.5px] bg-brandPink animate-bounce rounded-full" style="height: 35%; animation-delay: 0.1s;"></span>
+      <span class="w-[2.5px] bg-brandGold animate-bounce rounded-full" style="height: 95%; animation-delay: 0.3s;"></span>
+      <span class="w-[2.5px] bg-brandGreen animate-bounce rounded-full" style="height: 55%; animation-delay: 0.5s;"></span>
+    </div>
+  </div>
+
+  <!-- 1. BRIGHT OPENING HERO SCENE -->
+  <div id="opening-scene" class="fixed inset-0 z-50 flex flex-col justify-center items-center p-6 text-center select-none overflow-hidden bg-gradient-to-tr from-brandBlush via-brandCream to-brandGold">
+    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#FFB6C1_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+    
+    <div class="max-w-3xl space-y-8 relative z-10 px-4">
+      <div class="inline-block p-2 px-4 bg-white/60 backdrop-blur-md rounded-full text-xs text-[#a05a50] border border-brandPink/40 shadow-sm animate-pulse">
+        حديقة الياسمين والورود المشرقة 🌸
+      </div>
+
+      <h2 class="text-5xl md:text-7xl font-bold font-amiri text-[#8c4d44] tracking-wider">
+        إلى تسنيم 🌸
+      </h2>
+
+      <p id="intro-subtitle" class="text-[#7c5651] font-ruqaa text-xl md:text-3.5xl leading-relaxed opacity-0 transition-all duration-[2000ms] transform translate-y-6 filter blur-md">
+        “من عمر… إليكِ”
+      </p>
+
+      <div id="intro-btn-wrapper" class="pt-10 opacity-0 transition-all duration-[1500ms] transform translate-y-8 scale-95">
+        <button
+          onclick="startJourney()"
+          class="relative group px-12 py-5 bg-gradient-to-r from-brandPink via-brandCream to-brandGold text-[#70423c] rounded-full border border-brandPink/40 hover:border-brandGold shadow-[0_12px_45px_rgba(255,182,193,0.35)] transition-all duration-700 active:scale-95"
+        >
+          <span class="relative z-10 font-bold tracking-widest text-base md:text-lg flex items-center justify-center gap-3">
+            ابدئي الرحلة
+            <span class="text-sm font-light animate-ping">🌸</span>
+          </span>
+        </button>
+        <p id="play-btn-subtext" class="text-[#a07f7a] text-[11px] mt-4 tracking-wider animate-pulse">جاري تحميل اللحن الهادئ...</p>
+      </div>
+    </div>
+
+    <div class="absolute bottom-8 text-[11px] text-[#907370] tracking-widest font-light z-10">
+      بكل نقاء وحب ربيعي دافئ • ٢٠٢٦
+    </div>
+  </div>
+
+  <!-- Main Bright Floral Experience (Hidden until Start) -->
+  <div id="main-experience" class="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-28 space-y-36 md:space-y-56 hidden">
+    
+    <!-- Elegant Botanical Header -->
+    <section class="text-center space-y-6 relative py-8 select-none">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-brandGold/20 rounded-full blur-[110px] pointer-events-none"></div>
+      
+      <span class="text-xs uppercase tracking-[0.4em] text-[#b58055] font-semibold block">ربيع مليء بالمسرات</span>
+      <h1 class="text-6xl md:text-8xl font-bold font-ruqaa bg-clip-text text-transparent bg-gradient-to-b from-brandDarkRose to-[#e2a297] drop-shadow-sm tracking-wider">
+        إلى تسنيم
+      </h1>
+      <p class="text-xl md:text-2xl font-light text-[#7c5651] font-amiri tracking-widest italic max-w-2xl mx-auto">
+        “كل الأشياء الجميلة والدافئة… تُشبهكِ أكثر مما تتخيلين.”
+      </p>
+      
+      <div class="pt-10 animate-bounce opacity-70">
+        <span class="text-xs text-brandDarkRose block mb-2 font-light">تصفّحي بستان ملامحكِ الزاهية</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto text-[#e2a297]">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- 2. POETIC SECTIONS (With Omar's sincere direct voice) -->
+    <section class="space-y-32 md:space-y-44">
+      
+      <!-- Poetry Line 1 with Image 4 (flowerBack) -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
+        <div class="md:col-span-6 space-y-6 text-right order-2 md:order-1">
+          <span class="text-[11px] text-brandDarkRose bg-brandBlush/40 px-3 py-1 rounded-full font-bold uppercase inline-block">القصيدة الأولى</span>
+          <h3 class="text-3xl md:text-4xl font-bold font-amiri text-[#5c3c38] leading-normal">
+            “ما كنتُ أظن أن اسمًا واحدًا يمكن أن يغيّر هذا الشعور داخلي… حتى عرفتكِ يا تسنيم.”
+          </h3>
+          <p class="text-[#7c5651] text-sm md:text-base leading-relaxed font-light">
+            اسمكِ العذب أصبح مفتاحاً لكل سلام وسكينة تسكن أعماقي، وصوتكِ ريحاً دافئة تهبّ على فضاء روحي بجمال لا نظير له.
+          </p>
+        </div>
+
+        <div class="md:col-span-6 order-1 md:order-2 flex justify-center">
+          <div 
+            onclick="openLightbox(3, 'ما كنتُ أظن أن اسمًا واحدًا يمكن أن يغيّر هذا الشعور داخلي… حتى عرفتكِ يا تسنيم 🌸')"
+            class="polaroid-card rotate-2"
+          >
+            <div class="overflow-hidden rounded-lg aspect-[4/5] bg-[#fffefd] w-64 md:w-80">
+              <img 
+                src="https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(2).jpeg" 
+                alt="تسنيم" 
+                class="w-full h-full object-cover"
+                id="story-img-1"
+                onerror="handleImgErr(1)"
+              />
+            </div>
+            <div class="mt-4 text-center font-ruqaa text-brandDarkRose text-lg">بستان السكينة</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Poetry Line 2 with Image 2 (brownHijab2) -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
+        <div class="md:col-span-6 flex justify-center">
+          <div 
+            onclick="openLightbox(1, 'وجودكِ جعل الأشياء أكثر هدوءًا… وأكثر جمالًا 🌷')"
+            class="polaroid-card -rotate-3"
+          >
+            <div class="overflow-hidden rounded-lg aspect-[4/5] bg-[#fffefd] w-64 md:w-80">
+              <img 
+                src="https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.19.43%20PM.jpeg" 
+                alt="تسنيم" 
+                class="w-full h-full object-cover"
+                id="story-img-2"
+                onerror="handleImgErr(2)"
+              />
+            </div>
+            <div class="mt-4 text-center font-ruqaa text-brandDarkRose text-lg">أثر المودة والرحمة</div>
+          </div>
+        </div>
+
+        <div class="md:col-span-6 space-y-6 text-right">
+          <span class="text-[11px] text-brandDarkRose bg-brandGold/50 px-3 py-1 rounded-full font-bold uppercase inline-block">موطن الورد</span>
+          <h3 class="text-3xl md:text-4xl font-bold font-amiri text-[#5c3c38] leading-normal">
+            “وجودكِ جعل الأشياء أكثر هدوءًا… وأكثر جمالًا.”
+          </h3>
+          <p class="text-[#7c5651] text-sm md:text-base leading-relaxed font-light">
+            تزهو الأيام الرمادية بكِ وتتفجر الألوان فرحة، ليعلن قلبي أن الفصول معكِ كلها ربيعٌ وزهر ونور متصل لا ينقطع.
+          </p>
+        </div>
+      </div>
+
+      <!-- Poetry Line 3 with Image 1 (whiteHijab) -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
+        <div class="md:col-span-6 space-y-6 text-right order-2 md:order-1">
+          <span class="text-[11px] text-brandDarkRose bg-brandGreen/40 px-3 py-1 rounded-full font-bold uppercase inline-block">أوراق خضراء</span>
+          <h3 class="text-3xl md:text-4xl font-bold font-amiri text-[#5c3c38] leading-normal">
+            “أنتِ لستِ مجرد صدفة في حياتي… أنتِ أجمل ما فيها.”
+          </h3>
+          <p class="text-[#7c5651] text-sm md:text-base leading-relaxed font-light">
+            تتبخر الأحزان برفق ويتحول ثقل الكون إلى تنهيدة هادئة ودافئة تسكبينها بقلبي لتشرق الأيام من جديد.
+          </p>
+        </div>
+
+        <div class="md:col-span-6 order-1 md:order-2 flex justify-center">
+          <div 
+            onclick="openLightbox(0, 'أنتِ لستِ مجرد صدفة في حياتي… أنتِ أجمل ما فيها ✨')"
+            class="polaroid-card rotate-3"
+          >
+            <div class="overflow-hidden rounded-lg aspect-[4/5] bg-[#fffefd] w-64 md:w-80">
+              <img 
+                src="https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.19.42%20PM.jpeg" 
+                alt="تسنيم" 
+                class="w-full h-full object-cover"
+                id="story-img-3"
+                onerror="handleImgErr(3)"
+              />
+            </div>
+            <div class="mt-4 text-center font-ruqaa text-brandDarkRose text-lg">بوابة السلام الأبيض</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Golden Spring Divider -->
+    <div class="flex justify-center items-center opacity-40">
+      <span class="text-2xl">🌸</span>
+      <div class="h-[1px] w-24 bg-gradient-to-r from-transparent via-brandPink to-transparent mx-4"></div>
+      <span class="text-2xl">✨</span>
+    </div>
+
+    <!-- 3. MEMORY GALLERY -->
+    <section class="space-y-12">
+      <div class="text-center space-y-3">
+        <span class="text-[11px] uppercase tracking-[0.3em] text-[#a85b51] font-semibold block">بستان ذكرياتكِ العذبة</span>
+        <h2 class="text-3xl md:text-4.5xl font-bold font-amiri text-[#5c3c38]">معرض الأيام السعيدة</h2>
+        <p class="text-xs text-neutral-500 max-w-md mx-auto leading-relaxed">
+          ست صور تنبض بالطمأنينة والربيع والجمال المبهج. انقري على أي ذكرى لمشاهدتها بكامل حجمها وجمالها الطبيعي.
+        </p>
+      </div>
+
+      <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12">
+        <!-- Dynamic JavaScript Injection or clean HTML rendering -->
+      </div>
+    </section>
+
+    <!-- 4. “THINGS I LOVE ABOUT YOU” SECTION -->
+    <section class="space-y-12">
+      <div class="text-center space-y-3">
+        <span class="text-[10px] uppercase tracking-widest text-[#a85b51] font-semibold block">روائعكِ الخفية</span>
+        <h2 class="text-3xl md:text-4.5xl font-bold font-amiri text-[#5c3c38]">أشياء أحبها فيكِ</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="group relative p-8 rounded-3xl border backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,182,193,0.15)] overflow-hidden bg-brandBlush/30 border-brandBlush/50">
+          <div class="absolute -right-6 -bottom-6 text-7xl opacity-[0.05] pointer-events-none select-none group-hover:scale-110 transition-transform duration-500">☀️</div>
+          <div class="flex items-center gap-4 mb-4">
+            <span class="text-xl p-2 bg-white/60 rounded-xl shadow-sm">☀️</span>
+            <h3 class="text-lg font-bold text-[#5c3c38] group-hover:text-brandDarkRose transition-colors">ضحكتكِ</h3>
+          </div>
+          <p class="text-[#7c5651] text-sm leading-relaxed font-light">
+            ضحكتكِ مثل ضوء الشمس الدافئ الذي ينسكب برفق بعد يوم ماطر، ليرسم البسمة ويجلب الأمان.
+          </p>
+        </div>
+
+        <div class="group relative p-8 rounded-3xl border backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,182,193,0.15)] overflow-hidden bg-brandGreen/25 border-brandGreen/45">
+          <div class="absolute -right-6 -bottom-6 text-7xl opacity-[0.05] pointer-events-none select-none group-hover:scale-110 transition-transform duration-500">🕊️</div>
+          <div class="flex items-center gap-4 mb-4">
+            <span class="text-xl p-2 bg-white/60 rounded-xl shadow-sm">🕊️</span>
+            <h3 class="text-lg font-bold text-[#5c3c38] group-hover:text-brandDarkRose transition-colors">هدوءكِ</h3>
+          </div>
+          <p class="text-[#7c5651] text-sm leading-relaxed font-light">
+            هدوءكِ العذب يملأ قلبي بالكامل طمأنينة لا توصف، كمن التجأ لأمن بيته بعد سفر طويل.
+          </p>
+        </div>
+
+        <div class="group relative p-8 rounded-3xl border backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,182,193,0.15)] overflow-hidden bg-brandGold/30 border-brandGold/50">
+          <div class="absolute -right-6 -bottom-6 text-7xl opacity-[0.05] pointer-events-none select-none group-hover:scale-110 transition-transform duration-500">🌸</div>
+          <div class="flex items-center gap-4 mb-4">
+            <span class="text-xl p-2 bg-white/60 rounded-xl shadow-sm">🌸</span>
+            <h3 class="text-lg font-bold text-[#5c3c38] group-hover:text-brandDarkRose transition-colors">وجودكِ</h3>
+          </div>
+          <p class="text-[#7c5651] text-sm leading-relaxed font-light">
+            وجودكِ يجعل كل تفاصيل الأيام الصعبة والرمادية فجأة أجمل، أخف وأكثر حياة ومسرة.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. MAIN LOVE LETTER (Handwritten-style block) -->
+    <section class="relative">
+      <div class="absolute inset-0 bg-gradient-to-r from-brandBlush/40 via-brandGold/30 to-brandBlush/40 rounded-3xl blur-2xl pointer-events-none"></div>
+      
+      <div class="relative bg-white/70 border border-brandPink/40 rounded-3xl p-8 md:p-16 space-y-10 shadow-[0_20px_50px_rgba(255,182,193,0.12)] overflow-hidden backdrop-blur-lg">
+        <div class="absolute -left-12 -bottom-12 text-9xl text-brandPink/10 font-serif pointer-events-none select-none">تسنيم</div>
+
+        <div class="flex flex-col md:flex-row items-center justify-between border-b border-[#FFD6E0] pb-6 gap-4">
+          <span class="text-2xl md:text-3.5xl font-bold font-amiri text-[#a85b51] tracking-wide">رسالة ربيعية من قلب عمر</span>
+          <span class="text-xs text-[#a07f7a] font-light tracking-widest bg-white/80 px-3 py-1 rounded-full border border-pink-100">ميثاق المحبة الصادق</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+          <div class="md:col-span-4 flex justify-center">
+            <div class="bg-white p-3 pb-8 rounded-xl shadow-lg border border-pink-50 -rotate-3 hover:rotate-0 transition-transform duration-500 max-w-[210px] md:max-w-full">
+              <div class="overflow-hidden rounded-lg aspect-square bg-[#fffefd] relative group">
+                <img 
+                  src="https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM.jpeg" 
+                  alt="تسنيم" 
+                  class="w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-108"
+                  id="letter-sidebar-img"
+                  onerror="handleImgErr(5)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-8 space-y-6 text-right text-[#5c3c38] font-light leading-relaxed text-base md:text-lg min-h-[220px]">
+            <p class="font-bold text-xl text-brandDarkRose font-ruqaa">حبيبتي تسنيم…</p>
+            
+            <div class="font-amiri text-lg md:text-xl text-[#5c3c38] leading-relaxed whitespace-pre-wrap border-r-2 border-brandPink pr-4">
+              <span id="typewriter-text"></span>
+              <span class="w-2 h-5 bg-brandPink inline-block animate-pulse ml-1"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SECRET MESSAGE SECTION (Locked glowing pastel card) -->
+    <section class="max-w-xl mx-auto">
+      <div class="relative bg-white/80 border border-brandPink/40 p-8 rounded-3xl text-center space-y-6 overflow-hidden shadow-[0_20px_45px_rgba(255,182,193,0.15)] backdrop-blur-xl">
+        <div id="light-burst" class="absolute inset-0 bg-gradient-to-r from-brandBlush via-brandGold to-brandBlush blur-md animate-ping pointer-events-none opacity-0 transition-opacity duration-500"></div>
+        
+        <div class="w-12 h-12 mx-auto rounded-full bg-brandGold/30 border border-brandGold flex items-center justify-center text-xl animate-bounce">🔑</div>
+
+        <div class="space-y-2">
+          <h3 class="text-xl font-bold font-amiri text-[#5c3c38]">افتحيه عندما تشتاقين 🌸</h3>
+          <p class="text-xs text-neutral-500">سرٌّ هادئ مغلق بأمان، انقري لتفجير النور والورد وقراءة السكينة.</p>
+        </div>
+
+        <div id="locked-card-content">
+          <button
+            onclick="revealSecret()"
+            class="px-8 py-3 bg-gradient-to-r from-brandPink via-brandCream to-brandGold text-[#70423c] font-bold border border-brandPink/30 hover:border-brandGold rounded-full text-xs tracking-wider transition-all duration-300 active:scale-95 shadow-md"
+          >
+            افتحي الرسالة الآن
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. FUTURE SECTION -->
+    <section class="relative overflow-hidden py-16 text-center max-w-4xl mx-auto rounded-3xl bg-white/40 border border-white/50 p-8 backdrop-blur-md">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-brandGold/10 rounded-full blur-[80px] pointer-events-none"></div>
+      
+      <div class="space-y-8 relative z-10">
+        <span class="text-3xl animate-pulse inline-block">☀️</span>
+        <p class="text-xl md:text-3xl font-light text-[#5c3c38] leading-relaxed font-serif max-w-2xl mx-auto">
+          لا أعرف كيف ستكون الأيام القادمة… لكنني أعرف شيئًا واحدًا يقينًا:
+        </p>
+        <p class="text-2xl md:text-4xl font-semibold text-brandDarkRose font-amiri drop-shadow-sm">
+          “أتمنى أن تظلي دائمًا… هذا الجمال الهادئ في حياتي”
+        </p>
+        <p class="text-xs text-neutral-500 font-light max-w-lg mx-auto leading-relaxed">
+          بعض الأشخاص لا يدخلون حياتنا صدفة، بل كرسالة دافئة ورحيمة من الله ليعيدوا لقلوبنا الطمأنينة والأمل والورود.
+        </p>
+      </div>
+    </section>
+
+    <!-- 8. FINAL SECTION WITH EXPLICIT OMAR SIGNATURE -->
+    <footer class="text-center py-24 border-t border-brandBlush/60 space-y-8 relative">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-[1px] bg-brandPink/40"></div>
+      
+      <span class="text-[10px] tracking-[0.3em] text-[#b06a61] uppercase block font-bold">منتهى السكينة والوداد الربيعي</span>
+      
+      <h2 class="text-4xl md:text-6xl font-bold font-amiri text-[#8c4d44] tracking-wide leading-relaxed animate-pulse">
+        “وكان أجمل ما حدث… أنكِ كنتِ أنتِ 🌸”
+      </h2>
+      
+      <div class="pt-4">
+        <p class="font-cinzel text-xl tracking-[0.25em] text-[#a85b51]/90 font-semibold animate-pulse">
+          — Omar
+        </p>
+      </div>
+      
+      <div class="w-10 h-[1px] bg-brandPink/30 mx-auto pt-4"></div>
+    </footer>
+
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox-modal" class="fixed inset-0 z-50 bg-[#FFF9F4]/98 backdrop-blur-xl flex flex-col justify-center items-center p-4 select-none hidden" onclick="closeLightbox()">
+    <button 
+      class="absolute top-6 left-6 text-neutral-600 hover:text-brandDarkRose p-3 rounded-full bg-white/60 border border-brandBlush hover:bg-brandBlush/20 transition-all duration-300 shadow-sm"
+      onclick="closeLightbox()"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <div class="max-w-xl w-full text-center space-y-6" onclick="event.stopPropagation()">
+      <div class="relative rounded-3xl overflow-hidden border-4 border-white shadow-2xl max-h-[70vh] flex items-center justify-center bg-white p-2">
+        <img id="lightbox-img" src="" alt="تسنيم" class="max-w-full max-h-[66vh] object-contain rounded-2xl">
+      </div>
+      
+      <p id="lightbox-desc" class="text-[#5c3c38] text-lg font-light font-amiri px-4"></p>
+      
+      <button 
+        class="text-brandDarkRose hover:text-[#5c3c38] text-xs font-semibold tracking-wider uppercase transition-colors"
+        onclick="closeLightbox()"
+      >
+        إغلاق المعاينة
+      </button>
+    </div>
+  </div>
+
+  <!-- Pure JavaScript Logic & API integrations -->
+  <script>
+    // All 6 provided premium image assets mapped exactly to GitHub URLs
+    const images = [
+      {
+        id: 1,
+        url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.19.42%20PM.jpeg",
+        desc: "طهر البراءة الموشحة بالأبيض البهي.",
+        title: "إشراقة نقاء 🌸",
+        rotate: "rotate-2 hover:rotate-0"
+      },
+      {
+        id: 2,
+        url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.19.43%20PM.jpeg",
+        desc: "نظرة دافئة تعيد صياغة السلام الداخلي للقلب.",
+        title: "سكون حالم ✨",
+        rotate: "-rotate-2 hover:rotate-0"
+      },
+      {
+        id: 3,
+        url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(1).jpeg",
+        desc: "جمال الأسود البهيج الذي يضفي هيبة كالملائكة.",
+        title: "وقار بهي 🌹",
+        rotate: "rotate-1 hover:rotate-0"
+      },
+      {
+        id: 4,
+        url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(2).jpeg",
+        desc: "ابتسامة زاهية تنسجم مع أوراق الورد المتناثرة.",
+        title: "أميرة الورد 🌷",
+        rotate: "-rotate-1 hover:rotate-0"
+      },
+      {
+        id: 5,
+        url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM%20(3).jpeg",
+        desc: "ذكرى خاصة تمنيت لو أنها دامت إلى الأبد.",
+        title: "مكالمة الحب 📞",
+        rotate: "rotate-3 hover:rotate-0"
+      },
+      {
+        id: 6,
+        url: "https://raw.githubusercontent.com/OmarAL-imam124-blip/faDfaD/refs/heads/main/WhatsApp%20Image%202026-05-18%20at%207.20.09%20PM.jpeg",
+        desc: "حضوركِ يملأ الفراغات بالطمأنينة التامة.",
+        title: "دفء الموطن 🏡",
+        rotate: "-rotate-3 hover:rotate-0"
+      }
+    ];
+
+    const fullLetterText = `أنا لا أكتب كثيراً، لكن حين يتعلق الأمر بكِ، تُفتح في قلبي مساحات واسعة من البوح الصادق. أودّ أن أخبركِ بملء روحي وبكل يقين، أن حضوركِ البهي قد غيّر ملامح الأيام وصاغ لي شعوراً طالما بحثت عنه بين دروب الحياة الشاسعة.\n\nأحببتُ فيكِ رقة هدوءكِ الذي يحميني من صخب الدنيا، وعفويتكِ النقية التي لا تشوبها شائبة. وجودكِ معي ربيع دائم يزهو في صدري، ونور نقي يطرد كل عتمة وتعب. دمتِ لي وطناً صغيراً ألوذ إليه، وأجمل ما وهبني الرحمن في عمري..`;
+
+    let isPlaying = false;
+    let hasStarted = false;
+    let letterIndex = 0;
+    let ytPlayer = null;
+
+    // Handle Fallback image rendering
+    function handleImgErr(idx) {
+      console.log("Image fallback triggered for index: ", idx);
+    }
+
+    // Populate memory gallery
+    function renderGallery() {
+      const container = document.getElementById('gallery-grid');
+      container.innerHTML = '';
+      images.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = `polaroid-card transform ${item.rotate}`;
+        card.onclick = () => openLightbox(index, item.desc);
+        card.innerHTML = `
+          <div class="overflow-hidden rounded-xl aspect-square relative bg-[#fffefd] flex items-center justify-center">
+            <img src="${item.url}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-108" />
+            <div class="absolute inset-0 bg-pink-100/5 hover:bg-transparent transition-colors duration-500"></div>
+          </div>
+          <div class="mt-5 text-right space-y-1">
+            <span class="text-[10px] text-[#b06a61] tracking-widest block uppercase font-bold">${item.title}</span>
+            <p class="text-[#7c5651] text-xs font-light font-amiri">“${item.desc}”</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // On start journey
+    function startJourney() {
+      hasStarted = true;
+      document.getElementById('opening-scene').classList.add('hidden');
+      document.getElementById('main-experience').classList.remove('hidden');
+      document.getElementById('sound-hud').classList.remove('hidden');
+      document.getElementById('petals-canvas').classList.remove('hidden');
+      document.getElementById('video-backdrop-wrapper').classList.add('opacity-25');
+
+      playGlobalAudio();
+      typewriterEffect();
+      renderGallery();
+      startPetals();
+    }
+
+    // YouTube Player Trigger Setup
+    function playGlobalAudio() {
+      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+        try {
+          ytPlayer.unMute();
+        } catch(e) {}
+        ytPlayer.playVideo();
+        isPlaying = true;
+        updateSoundHUDState(true);
+      }
+    }
+
+    function toggleSound() {
+      if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+        if (isPlaying) {
+          ytPlayer.pauseVideo();
+          isPlaying = false;
+          updateSoundHUDState(false);
+        } else {
+          playGlobalAudio();
+        }
+      }
+    }
+
+    function updateSoundHUDState(active) {
+      const icon = document.getElementById('sound-icon');
+      const wave = document.getElementById('audio-wave');
+      if (active) {
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></svg>`;
+        wave.classList.remove('opacity-40');
+      } else {
+        icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5 translate-x-[-1px]"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" /></svg>`;
+        wave.classList.add('opacity-40');
+      }
+    }
+
+    // Typewriter effect
+    function typewriterEffect() {
+      const container = document.getElementById('typewriter-text');
+      if (letterIndex < fullLetterText.length) {
+        container.innerHTML += fullLetterText.charAt(letterIndex);
+        letterIndex++;
+        setTimeout(typewriterEffect, 55);
+      }
+    }
+
+    // Modal Preview controllers
+    function openLightbox(index, desc) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      const text = document.getElementById('lightbox-desc');
+      
+      img.src = images[index].url;
+      text.innerText = desc || images[index].desc;
+      modal.classList.remove('hidden');
+    }
+
+    // Close Lightbox
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').classList.add('hidden');
+    }
+
+    // Secret Message unlocked trigger
+    function revealSecret() {
+      const burst = document.getElementById('light-burst');
+      burst.classList.remove('opacity-0');
+      burst.classList.add('opacity-100');
+      setTimeout(() => {
+        burst.classList.add('opacity-0');
+        burst.classList.remove('opacity-100');
+      }, 1200);
+
+      document.getElementById('locked-card-content').innerHTML = `
+        <div class="space-y-4 pt-4 border-t border-[#FFD6E0] animate-fadeIn">
+          <p class="text-2xl text-[#8c4d44] font-ruqaa leading-relaxed drop-shadow-sm">
+            “أنتِ لستِ مجرد صدفة… أنتِ أجمل ما حدث في الأيام.”
+          </p>
+          <p class="text-neutral-500 text-xs font-serif italic">
+            عمر يرى في عيونكِ كل ملامح السعادة والسلام.
+          </p>
+          <button
+            onclick="hideSecret()"
+            class="text-neutral-400 hover:text-[#a85b51] text-[11px] underline transition-colors"
+          >
+            إعادة إغلاق الرسالة وحفظ سرها
+          </button>
+        </div>
+      `;
+    }
+
+    function hideSecret() {
+      document.getElementById('locked-card-content').innerHTML = `
+        <button
+          onclick="revealSecret()"
+          class="px-8 py-3 bg-gradient-to-r from-brandPink via-brandCream to-brandGold text-[#70423c] font-bold border border-brandPink/30 hover:border-brandGold rounded-full text-xs tracking-wider transition-all duration-300 active:scale-95 shadow-md"
+        >
+          افتحي الرسالة الآن
+        </button>
+      `;
+    }
+
+    // Load Youtube Iframe API
+    window.onYouTubeIframeAPIReady = function() {
+      ytPlayer = new YT.Player('youtube-video-backdrop', {
+        height: '100%',
+        width: '100%',
+        videoId: 'VZhN-xHt8mY',
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          rel: 0,
+          showinfo: 0,
+          iv_load_policy: 3,
+          loop: 1,
+          playlist: 'VZhN-xHt8mY',
+          modestbranding: 1
+        },
+        events: {
+          onReady: (event) => {
+            event.target.setVolume(22);
+            document.getElementById('play-btn-subtext').innerText = "اضغط لبدء التجربة الصوتية";
+            document.getElementById('intro-subtitle').classList.remove('opacity-0', 'translate-y-6', 'blur-md');
+            document.getElementById('intro-btn-wrapper').classList.remove('opacity-0', 'translate-y-8', 'scale-95');
           },
-          events: {
-            onReady: (event) => {
-              event.target.setVolume(22); // Soft warm ambient volume level
-              setYtReady(true);
-            },
-            onStateChange: (event) => {
-              if (event.data === window.YT.PlayerState.ENDED) {
-                event.target.playVideo(); // Loop restart
-              }
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.ENDED) {
+              event.target.playVideo();
             }
           }
-        });
-      }
+        }
+      });
     };
 
-    if (!window.YT) {
+    // Global load sequence trigger
+    window.onload = function() {
       const tag = document.createElement('script');
       tag.src = "https://www.youtube.com/iframe_api";
       const firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      const previousCallback = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        if (previousCallback) previousCallback();
-        initPlayer();
-      };
-    } else {
-      initPlayer();
-    }
-
-    return () => {
-      clearTimeout(introTimer1);
-      clearTimeout(introTimer2);
     };
-  }, []);
 
-  // Global click fallback in case autoplay blocks initially
-  useEffect(() => {
-    const handleGlobalUnlock = () => {
-      if (hasStarted && !isPlaying && ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === 'function') {
+    // Global unlock handler
+    window.addEventListener('click', () => {
+      if (hasStarted && !isPlaying && ytPlayer && typeof ytPlayer.playVideo === 'function') {
         playGlobalAudio();
       }
-    };
-    window.addEventListener('click', handleGlobalUnlock);
-    return () => window.removeEventListener('click', handleGlobalUnlock);
-  }, [hasStarted, isPlaying]);
+    });
 
-  // Romantic typewriter logic for letter
-  useEffect(() => {
-    if (hasStarted) {
-      let interval;
-      if (letterIndex < fullLetterText.length) {
-        interval = setInterval(() => {
-          setActiveLetterText(prev => prev + fullLetterText[letterIndex]);
-          setLetterIndex(prev => prev + 1);
-        }, 55); // Romantic, moderate typing flow
-      }
-      return () => clearInterval(interval);
-    }
-  }, [hasStarted, letterIndex]);
+    // Petals canvas logic
+    let petalAnimationId;
+    function startPetals() {
+      const canvas = document.getElementById('petals-canvas');
+      const ctx = canvas.getContext('2d');
+      let width = (canvas.width = window.innerWidth);
+      let height = (canvas.height = window.innerHeight);
 
-  // Canvas falling floral petals and spring garden dust effects
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      if (canvas) {
+      window.addEventListener('resize', () => {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
-      }
-    };
-    window.addEventListener('resize', handleResize);
-
-    const items = Array.from({ length: 35 }).map(() => ({
-      x: Math.random() * width,
-      y: Math.random() * height - height,
-      size: Math.random() * 8 + 4,
-      speedY: Math.random() * 1.0 + 0.5,
-      speedX: Math.random() * 0.6 - 0.3,
-      rotation: Math.random() * 360,
-      rotationSpeed: Math.random() * 2 - 1,
-      opacity: Math.random() * 0.5 + 0.3,
-      type: Math.random() > 0.35 ? 'petal' : 'leaf',
-      color: Math.random() > 0.5 ? '#FFB6C1' : '#FFD6E0'
-    }));
-
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      items.forEach(p => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.globalAlpha = p.opacity;
-
-        ctx.beginPath();
-        if (p.type === 'petal') {
-          ctx.moveTo(0, 0);
-          ctx.bezierCurveTo(-p.size * 1.5, -p.size, -p.size, p.size * 1.5, 0, p.size * 1.8);
-          ctx.bezierCurveTo(p.size, p.size * 1.5, p.size * 1.5, -p.size, 0, 0);
-          ctx.fillStyle = p.color;
-        } else {
-          ctx.moveTo(0, 0);
-          ctx.quadraticCurveTo(-p.size * 1.2, p.size * 0.8, 0, p.size * 2);
-          ctx.quadraticCurveTo(p.size * 1.2, p.size * 0.8, 0, 0);
-          ctx.fillStyle = '#BFE7C2';
-        }
-
-        ctx.shadowColor = 'rgba(255, 182, 193, 0.4)';
-        ctx.shadowBlur = 4;
-        ctx.fill();
-        ctx.restore();
-
-        p.y += p.speedY;
-        p.x += p.speedX;
-        p.rotation += p.rotationSpeed;
-
-        if (p.y > height) {
-          p.y = -20;
-          p.x = Math.random() * width;
-        }
       });
 
-      animationFrameId = requestAnimationFrame(draw);
-    };
+      const items = Array.from({ length: 35 }).map(() => ({
+        x: Math.random() * width,
+        y: Math.random() * height - height,
+        size: Math.random() * 8 + 4,
+        speedY: Math.random() * 1.0 + 0.5,
+        speedX: Math.random() * 0.6 - 0.3,
+        rotation: Math.random() * 360,
+        rotationSpeed: Math.random() * 2 - 1,
+        opacity: Math.random() * 0.5 + 0.3,
+        type: Math.random() > 0.35 ? 'petal' : 'leaf',
+        color: Math.random() > 0.5 ? '#FFB6C1' : '#FFD6E0'
+      }));
 
-    draw();
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [hasStarted]);
+        items.forEach(p => {
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.globalAlpha = p.opacity;
 
-  return (
-    <div className="min-h-screen bg-[#FFF9F4] text-[#5C4D4A] font-['Tajawal'] relative overflow-x-hidden selection:bg-[#FFB6C1]/40 selection:text-[#5C4D4A] scroll-smooth" dir="rtl">
-      
-      {/* MANDATORY CINEMATIC FULLSCREEN BACKGROUND VIDEO (YouTube Embed Layer)
-        This acts as the visual and auditory landscape. Rendered in full-screen behind everything.
-        We zoom the iframe using CSS transform (scale) to hide watermarks, branding, and black bars.
-      */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden transition-opacity duration-1000">
-        <div 
-          className={`w-full h-full transform scale-135 transition-all duration-[2000ms] ${
-            hasStarted ? 'opacity-25 filter blur-[1.5px]' : 'opacity-0'
-          }`}
-        >
-          <div id="youtube-video-backdrop" className="w-full h-full pointer-events-none" />
-        </div>
+          ctx.beginPath();
+          if (p.type === 'petal') {
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-p.size * 1.5, -p.size, -p.size, p.size * 1.5, 0, p.size * 1.8);
+            ctx.bezierCurveTo(p.size, p.size * 1.5, p.size * 1.5, -p.size, 0, 0);
+            ctx.fillStyle = p.color;
+          } else {
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(-p.size * 1.2, p.size * 0.8, 0, p.size * 2);
+            ctx.quadraticCurveTo(p.size * 1.2, p.size * 0.8, 0, 0);
+            ctx.fillStyle = '#BFE7C2';
+          }
 
-        {/* Soft elegant pastel sunrise gradients overlay for perfect text contrast and romantic warmth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FFD6E0]/45 via-[#FFF9F4]/90 to-[#FFE29A]/30 pointer-events-none" />
-      </div>
+          ctx.shadowColor = 'rgba(255, 182, 193, 0.4)';
+          ctx.shadowBlur = 4;
+          ctx.fill();
+          ctx.restore();
 
-      {/* Spring/Light Blobs Layer */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[10%] right-[5%] w-[450px] h-[450px] bg-[#FFE29A]/20 rounded-full blur-[130px] animate-pulse" style={{ animationDuration: '9s' }} />
-        <div className="absolute bottom-[20%] left-[5%] w-[500px] h-[500px] bg-[#FFB6C1]/15 rounded-full blur-[140px] animate-pulse" style={{ animationDuration: '11s' }} />
-      </div>
+          p.y += p.speedY;
+          p.x += p.speedX;
+          p.rotation += p.rotationSpeed;
 
-      {/* Floating Canvas layer for blooming petals */}
-      {hasStarted && (
-        <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-10" />
-      )}
+          if (p.y > height) {
+            p.y = -20;
+            p.x = Math.random() * width;
+          }
+        });
 
-      {/* Floating Elegant Sound Control HUD (Tied to YouTube Player) */}
-      {hasStarted && (
-        <div className="fixed bottom-6 left-6 z-50 bg-white/85 backdrop-blur-xl border border-[#FFB6C1]/30 px-5 py-3 rounded-full flex items-center gap-4 shadow-[0_10px_35px_rgba(255,182,193,0.25)] transition-all duration-500 hover:border-[#dfb76c]/50 group">
-          <button
-            onClick={toggleSound}
-            className="w-10 h-10 rounded-full bg-[#FFB6C1]/20 hover:bg-[#FFB6C1]/35 text-[#b06a61] flex items-center justify-center transition-all duration-300 active:scale-90"
-            title="تحكم بالصوت"
-          >
-            {isPlaying ? (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 translate-x-[-1px]">
-                <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-              </svg>
-            )}
-          </button>
-          
-          <div className="flex flex-col text-right pl-3 select-none">
-            <span className="text-[10px] text-neutral-500 tracking-wider font-light">أنشودة الوفاء</span>
-            <span className="text-xs text-[#b06a61] font-medium">جادك الحب حنيناً</span>
-          </div>
-
-          {isPlaying && (
-            <div className="flex items-end gap-[2.5px] h-3 w-5 pr-1">
-              <span className="w-[2.5px] bg-[#FFB6C1] animate-[bounce_0.8s_infinite_0.1s] rounded-full" style={{ height: '35%' }}></span>
-              <span className="w-[2.5px] bg-[#FFE29A] animate-[bounce_0.8s_infinite_0.3s] rounded-full" style={{ height: '95%' }}></span>
-              <span className="w-[2.5px] bg-[#BFE7C2] animate-[bounce_0.8s_infinite_0.5s] rounded-full" style={{ height: '55%' }}></span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 1. BRIGHT OPENING HERO SCENE */}
-      {!hasStarted && (
-        <div className="fixed inset-0 z-50 flex flex-col justify-center items-center p-6 text-center select-none overflow-hidden bg-gradient-to-tr from-[#FFD6E0] via-[#FFF9F4] to-[#FFE29A]">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#FFB6C1_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-          
-          <div className="max-w-3xl space-y-8 relative z-10 px-4 animate-[fadeIn_1.5s_ease-out_forwards]">
-            <div className="inline-block p-2 px-4 bg-white/60 backdrop-blur-md rounded-full text-xs text-[#a05a50] border border-[#FFB6C1]/40 shadow-sm animate-pulse">
-              حديقة الياسمين والورود المشرقة 🌸
-            </div>
-
-            <h2 className="text-5xl md:text-7xl font-bold font-['Amiri'] text-[#8c4d44] tracking-wider">
-              إلى تسنيم 🌸
-            </h2>
-
-            <p className={`text-[#7c5651] font-['Aref_Ruqaa'] text-xl md:text-3.5xl leading-relaxed transition-all duration-[2000ms] transform ${
-              introStep >= 1 ? 'opacity-100 translate-y-0 filter blur-0' : 'opacity-0 translate-y-6 filter blur-md'
-            }`}>
-              “من عمر… إليكِ”
-            </p>
-
-            <div className={`pt-10 transition-all duration-[1500ms] transform ${
-              introStep >= 2 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 pointer-events-none scale-95'
-            }`}>
-              <button
-                onClick={handleStartApp}
-                className="relative group px-12 py-5 bg-gradient-to-r from-[#FFB6C1] via-[#FFF9F4] to-[#FFE29A] text-[#70423c] rounded-full border border-[#FFB6C1]/40 hover:border-[#dfb76c] shadow-[0_12px_45px_rgba(255,182,193,0.35)] transition-all duration-700 active:scale-95"
-              >
-                <span className="relative z-10 font-bold tracking-widest text-base md:text-lg flex items-center justify-center gap-3 font-['Tajawal']">
-                  ابدئي الرحلة
-                  <span className="text-sm font-light animate-ping">🌸</span>
-                </span>
-              </button>
-              <p className="text-[#a07f7a] text-[11px] mt-4 tracking-wider animate-pulse">
-                {ytReady ? "اضغط لبدء التجربة الصوتية" : "جاري تحميل اللحن الهادئ..."}
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute bottom-8 text-[11px] text-[#907370] tracking-widest font-light z-10">
-            بكل نقاء وحب ربيعي دافئ • ٢٠٢٦
-          </div>
-        </div>
-      )}
-
-      {/* Main Bright Floral Experience */}
-      {hasStarted && (
-        <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-28 space-y-36 md:space-y-56 animate-[fadeIn_1.2s_ease-out_forwards]">
-          
-          {/* Elegant Botanical Header */}
-          <section className="text-center space-y-6 relative py-8 select-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-[#FFE29A]/20 rounded-full blur-[110px] pointer-events-none" />
-            
-            <span className="text-xs uppercase tracking-[0.4em] text-[#b58055] font-semibold block">ربيع مليء بالمسرات</span>
-            <h1 className="text-6xl md:text-8xl font-bold font-['Aref_Ruqaa'] bg-clip-text text-transparent bg-gradient-to-b from-[#a85b51] to-[#e2a297] drop-shadow-sm tracking-wider">
-              إلى تسنيم
-            </h1>
-            <p className="text-xl md:text-2xl font-light text-[#7c5651] font-['Amiri'] tracking-widest italic max-w-2xl mx-auto">
-              “كل الأشياء الجميلة والدافئة… تُشبهكِ أكثر مما تتخيلين.”
-            </p>
-            
-            <div className="pt-10 animate-bounce opacity-70">
-              <span className="text-xs text-[#a85b51] block mb-2 font-light">تصفّحي بستان ملامحكِ الزاهية</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mx-auto text-[#e2a297]">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-            </div>
-          </section>
-
-          {/* 2. POETIC SECTIONS (With Omar's sincere direct voice) */}
-          <section className="space-y-32 md:space-y-44">
-            
-            {/* Poetry Line 1 with Image 4 (flowerBack) */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
-              <div className="md:col-span-6 space-y-6 text-right order-2 md:order-1">
-                <span className="text-[11px] text-[#a85b51] bg-[#FFD6E0]/40 px-3 py-1 rounded-full font-bold uppercase inline-block">القصيدة الأولى</span>
-                <h3 className="text-3xl md:text-4xl font-bold font-['Amiri'] text-[#5c3c38] leading-normal">
-                  “ما كنتُ أظن أن اسمًا واحدًا يمكن أن يغيّر هذا الشعور داخلي… حتى عرفتكِ يا تسنيم.”
-                </h3>
-                <p className="text-[#7c5651] text-sm md:text-base leading-relaxed font-light">
-                  اسمكِ العذب أصبح مفتاحاً لكل سلام وسكينة تسكن أعماقي، وصوتكِ ريحاً دافئة تهبّ على فضاء روحي بجمال لا نظير له.
-                </p>
-              </div>
-
-              {/* Polaroid framing with thick white borders, soft drop shadows and rotations */}
-              <div className="md:col-span-6 order-1 md:order-2 flex justify-center">
-                <div 
-                  onClick={() => setActiveLightbox({ img: images[3].url, desc: "ما كنتُ أظن أن اسمًا واحدًا يمكن أن يغيّر هذا الشعور داخلي… حتى عرفتكِ يا تسنيم 🌸" })}
-                  className="bg-white p-5 pb-12 rounded-2xl shadow-[0_15px_40px_rgba(255,182,193,0.2)] rotate-2 hover:rotate-0 hover:scale-103 transition-all duration-500 cursor-pointer max-w-sm border border-neutral-100"
-                >
-                  <div className="overflow-hidden rounded-lg aspect-[4/5] bg-[#fffefd]">
-                    {!imageErrors[images[3].id] ? (
-                      <img 
-                        src={images[3].url} 
-                        alt="تسنيم" 
-                        onError={() => handleImageError(images[3].id)}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[4000ms]"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[#FFD6E0] flex items-center justify-center text-[#a85b51]">تسنيم 🌸</div>
-                    )}
-                  </div>
-                  <div className="mt-4 text-center font-['Aref_Ruqaa'] text-[#a85b51] text-lg">بستان السكينة</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Poetry Line 2 with Image 2 (brownHijab2) */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
-              <div className="md:col-span-6 flex justify-center">
-                <div 
-                  onClick={() => setActiveLightbox({ img: images[1].url, desc: "وجودكِ جعل الأشياء أكثر هدوءًا… وأكثر جمالًا 🌷" })}
-                  className="bg-white p-5 pb-12 rounded-2xl shadow-[0_15px_40px_rgba(255,182,193,0.2)] -rotate-3 hover:rotate-0 hover:scale-103 transition-all duration-500 cursor-pointer max-w-sm border border-neutral-100"
-                >
-                  <div className="overflow-hidden rounded-lg aspect-[4/5] bg-[#fffefd]">
-                    {!imageErrors[images[1].id] ? (
-                      <img 
-                        src={images[1].url} 
-                        alt="تسنيم" 
-                        onError={() => handleImageError(images[1].id)}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[4000ms]"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[#FFD6E0] flex items-center justify-center text-[#a85b51]">تسنيم 🌷</div>
-                    )}
-                  </div>
-                  <div className="mt-4 text-center font-['Aref_Ruqaa'] text-[#a85b51] text-lg">أثر المودة والرحمة</div>
-                </div>
-              </div>
-
-              <div className="md:col-span-6 space-y-6 text-right">
-                <span className="text-[11px] text-[#a85b51] bg-[#FFE29A]/50 px-3 py-1 rounded-full font-bold uppercase inline-block">موطن الورد</span>
-                <h3 className="text-3xl md:text-4xl font-bold font-['Amiri'] text-[#5c3c38] leading-normal">
-                  “وجودكِ جعل الأشياء أكثر هدوءًا… وأكثر جمالًا.”
-                </h3>
-                <p className="text-[#7c5651] text-sm md:text-base leading-relaxed font-light">
-                  تزهو الأيام الرمادية بكِ وتتفجر الألوان فرحة، ليعلن قلبي أن الفصول معكِ كلها ربيعٌ وزهر ونور متصل لا ينقطع.
-                </p>
-              </div>
-            </div>
-
-            {/* Poetry Line 3 with Image 1 (whiteHijab) */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 items-center">
-              <div className="md:col-span-6 space-y-6 text-right order-2 md:order-1">
-                <span className="text-[11px] text-[#a85b51] bg-[#BFE7C2]/40 px-3 py-1 rounded-full font-bold uppercase inline-block">أوراق خضراء</span>
-                <h3 className="text-3xl md:text-4xl font-bold font-['Amiri'] text-[#5c3c38] leading-normal">
-                  “أنتِ لستِ مجرد صدفة في حياتي… أنتِ أجمل ما فيها.”
-                </h3>
-                <p className="text-[#7c5651] text-sm md:text-base leading-relaxed font-light">
-                  تتبخر الأحزان برفق ويتحول ثقل الكون إلى تنهيدة هادئة ودافئة تسكبينها بقلبي لتشرق الأيام من جديد.
-                </p>
-              </div>
-
-              <div className="md:col-span-6 order-1 md:order-2 flex justify-center">
-                <div 
-                  onClick={() => setActiveLightbox({ img: images[0].url, desc: "أنتِ لستِ مجرد صدفة في حياتي… أنتِ أجمل ما فيها ✨" })}
-                  className="bg-white p-5 pb-12 rounded-2xl shadow-[0_15px_40px_rgba(255,182,193,0.2)] rotate-3 hover:rotate-0 hover:scale-103 transition-all duration-500 cursor-pointer max-w-sm border border-neutral-100"
-                >
-                  <div className="overflow-hidden rounded-lg aspect-[4/5] bg-[#fffefd]">
-                    {!imageErrors[images[0].id] ? (
-                      <img 
-                        src={images[0].url} 
-                        alt="تسنيم" 
-                        onError={() => handleImageError(images[0].id)}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[4000ms]"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[#FFD6E0] flex items-center justify-center text-[#a85b51]">تسنيم ✨</div>
-                    )}
-                  </div>
-                  <div className="mt-4 text-center font-['Aref_Ruqaa'] text-[#a85b51] text-lg">بوابة السلام الأبيض</div>
-                </div>
-              </div>
-            </div>
-
-          </section>
-
-          {/* Golden Spring Divider */}
-          <div className="flex justify-center items-center opacity-40">
-            <span className="text-2xl text-[#FFB6C1]">🌸</span>
-            <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-[#FFB6C1] to-transparent mx-4" />
-            <span className="text-2xl text-[#FFE29A]">✨</span>
-          </div>
-
-          {/* 3. MEMORY GALLERY (Using all 6 images with polaroid aesthetic and hover effects) */}
-          <section className="space-y-12">
-            <div className="text-center space-y-3">
-              <span className="text-[11px] uppercase tracking-[0.3em] text-[#a85b51] font-semibold block">بستان ذكرياتكِ العذبة</span>
-              <h2 className="text-3xl md:text-4.5xl font-bold font-['Amiri'] text-[#5c3c38]">معرض الأيام السعيدة</h2>
-              <p className="text-xs text-neutral-500 max-w-md mx-auto leading-relaxed">
-                ست صور تنبض بالطمأنينة والربيع والجمال المبهج. انقري على أي ذكرى لمشاهدتها بكامل حجمها وجمالها الطبيعي.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12">
-              {images.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => setActiveLightbox({ img: item.url, desc: item.desc })}
-                  className={`bg-white p-5 pb-10 rounded-2xl shadow-[0_10px_35px_rgba(255,182,193,0.15)] border border-neutral-100/80 transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_20px_45px_rgba(255,182,193,0.3)] cursor-pointer transform ${item.rotate}`}
-                >
-                  <div className="overflow-hidden rounded-xl aspect-square relative bg-[#fffefd] flex items-center justify-center">
-                    {!imageErrors[item.id] ? (
-                      <img
-                        src={item.url}
-                        alt={item.title}
-                        onError={() => handleImageError(item.id)}
-                        className="w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-108"
-                      />
-                    ) : (
-                      <span className="text-4xl">🖤</span>
-                    )}
-                    <div className="absolute inset-0 bg-pink-100/5 hover:bg-transparent transition-colors duration-500" />
-                  </div>
-                  <div className="mt-5 text-right space-y-1">
-                    <span className="text-[10px] text-[#b06a61] tracking-widest block uppercase font-bold">{item.title}</span>
-                    <p className="text-[#7c5651] text-xs font-light font-['Amiri']">“{item.desc}”</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* 4. “THINGS I LOVE ABOUT YOU” SECTION */}
-          <section className="space-y-12">
-            <div className="text-center space-y-3">
-              <span className="text-[10px] uppercase tracking-widest text-[#a85b51] font-semibold block">روائعكِ الخفية</span>
-              <h2 className="text-3xl md:text-4.5xl font-bold font-['Amiri'] text-[#5c3c38]">أشياء أحبها فيكِ</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { title: "ضحكتكِ", desc: "ضحكتكِ مثل ضوء الشمس الدافئ الذي ينسكب برفق بعد يوم ماطر، ليرسم البسمة ويجلب الأمان.", icon: "☀️", bg: "bg-[#FFD6E0]/30 border-[#FFD6E0]/50" },
-                { title: "هدوءكِ", desc: "هدوءكِ العذب يملأ قلبي بالكامل طمأنينة لا توصف، كمن التجأ لأمن بيته بعد سفر طويل.", icon: "🕊️", bg: "bg-[#BFE7C2]/25 border-[#BFE7C2]/45" },
-                { title: "وجودكِ", desc: "وجودكِ يجعل كل تفاصيل الأيام الصعبة والرمادية فجأة أجمل، أخف وأكثر حياة ومسرة.", icon: "🌸", bg: "bg-[#FFE29A]/30 border-[#FFE29A]/50" }
-              ].map((card, idx) => (
-                <div
-                  key={idx}
-                  className={`group relative p-8 rounded-3xl border backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(255,182,193,0.15)] overflow-hidden ${card.bg}`}
-                >
-                  <div className="absolute -right-6 -bottom-6 text-7xl opacity-[0.05] pointer-events-none select-none group-hover:scale-110 transition-transform duration-500">
-                    {card.icon}
-                  </div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <span className="text-xl p-2 bg-white/60 rounded-xl shadow-sm">{card.icon}</span>
-                    <h3 className="text-lg font-bold text-[#5c3c38] group-hover:text-[#a85b51] transition-colors">{card.title}</h3>
-                  </div>
-                  <p className="text-[#7c5651] text-sm leading-relaxed font-light font-sans">
-                    {card.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* 5. MAIN LOVE LETTER (Directly from Omar to Tasneem) */}
-          <section className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FFD6E0]/40 via-[#FFE29A]/30 to-[#FFD6E0]/40 rounded-3xl blur-2xl pointer-events-none" />
-            
-            <div className="relative bg-white/70 border border-[#FFB6C1]/40 rounded-3xl p-8 md:p-16 space-y-10 shadow-[0_20px_50px_rgba(255,182,193,0.12)] overflow-hidden backdrop-blur-lg">
-              <div className="absolute -left-12 -bottom-12 text-9xl text-[#FFB6C1]/10 font-serif pointer-events-none select-none">
-                تسنيم
-              </div>
-
-              <div className="flex flex-col md:flex-row items-center justify-between border-b border-[#FFD6E0] pb-6 gap-4">
-                <span className="text-2xl md:text-3.5xl font-bold font-['Amiri'] text-[#a85b51] tracking-wide">رسالة ربيعية من قلب عمر</span>
-                <span className="text-xs text-[#a07f7a] font-light tracking-widest bg-white/80 px-3 py-1 rounded-full border border-pink-100">ميثاق المحبة الصادق</span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
-                {/* Floating Image alongside text */}
-                <div className="md:col-span-4 flex justify-center">
-                  <div className="bg-white p-3 pb-8 rounded-xl shadow-lg border border-pink-50 -rotate-3 hover:rotate-0 transition-transform duration-500 max-w-[210px] md:max-w-full">
-                    <div className="overflow-hidden rounded-lg aspect-square bg-[#fffefd] relative group">
-                      <div className="absolute inset-0 bg-pink-100/5 group-hover:bg-transparent transition-colors duration-500" />
-                      {!imageErrors[images[5].id] ? (
-                        <img 
-                          src={images[5].url} 
-                          alt="تسنيم" 
-                          onError={() => handleImageError(images[5].id)}
-                          className="w-full h-full object-cover transition-transform duration-[4000ms] group-hover:scale-108"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-[#1c1814] flex items-center justify-center text-rose-300">🖤</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Highly emotional Arabic handwritten-style letter with beautiful typewriter typing */}
-                <div className="md:col-span-8 space-y-6 text-right text-[#5c3c38] font-light leading-relaxed text-base md:text-lg min-h-[220px]">
-                  <p className="font-bold text-xl text-[#a85b51] font-['Aref_Ruqaa']">حبيبتي تسنيم…</p>
-                  
-                  {/* Typewriter text container */}
-                  <div className="font-['Amiri'] text-lg md:text-xl text-[#5c3c38] leading-relaxed whitespace-pre-line border-r-2 border-[#FFB6C1] pr-4">
-                    {activeLetterText}
-                    <span className="w-2 h-5 bg-[#FFB6C1] inline-block animate-pulse ml-1" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 6. SECRET MESSAGE SECTION (Locked glowing pastel card) */}
-          <section className="max-w-xl mx-auto">
-            <div className="relative bg-white/80 border border-[#FFB6C1]/40 p-8 rounded-3xl text-center space-y-6 overflow-hidden shadow-[0_20px_45px_rgba(255,182,193,0.15)] backdrop-blur-xl">
-              {lightBurst && (
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FFD6E0] via-[#FFE29A] to-[#FFD6E0] blur-md animate-ping pointer-events-none opacity-40" />
-              )}
-              
-              <div className="w-12 h-12 mx-auto rounded-full bg-[#FFE29A]/30 border border-[#FFE29A] flex items-center justify-center text-xl animate-bounce">
-                🔑
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold font-['Amiri'] text-[#5c3c38]">افتحيه عندما تشتاقين 🌸</h3>
-                <p className="text-xs text-neutral-500">سرٌّ هادئ مغلق بأمان، انقري لتفجير النور والورد وقراءة السكينة.</p>
-              </div>
-
-              {!secretOpen ? (
-                <button
-                  onClick={triggerSecretMessage}
-                  className="px-8 py-3 bg-gradient-to-r from-[#FFB6C1] via-[#FFF9F4] to-[#FFE29A] text-[#70423c] font-bold border border-[#FFB6C1]/30 hover:border-[#dfb76c] rounded-full text-xs tracking-wider transition-all duration-300 active:scale-95 shadow-md"
-                >
-                  افتحي الرسالة الآن
-                </button>
-              ) : (
-                <div className="space-y-4 pt-4 border-t border-[#FFD6E0] animate-[fadeIn_0.8s_ease-out_forwards]">
-                  <p className="text-2xl text-[#8c4d44] font-['Aref_Ruqaa'] leading-relaxed drop-shadow-sm">
-                    “أنتِ لستِ مجرد صدفة… أنتِ أجمل ما حدث في الأيام.”
-                  </p>
-                  <p className="text-neutral-500 text-xs font-serif italic text-[#a85b51]/80">
-                    عمر يرى في عيونكِ كل ملامح السعادة والسلام.
-                  </p>
-                  <button
-                    onClick={triggerSecretMessage}
-                    className="text-neutral-400 hover:text-[#a85b51] text-[11px] underline transition-colors"
-                  >
-                    إعادة إغلاق الرسالة وحفظ سرها
-                  </button>
-                </div>
-              )}
-            </div>
-          </section>
-
-          {/* 7. FUTURE SECTION */}
-          <section className="relative overflow-hidden py-16 text-center max-w-4xl mx-auto rounded-3xl bg-white/40 border border-white/50 p-8 backdrop-blur-md">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#FFE29A]/10 rounded-full blur-[80px] pointer-events-none" />
-            
-            <div className="space-y-8 relative z-10">
-              <span className="text-3xl animate-pulse inline-block">☀️</span>
-              <p className="text-xl md:text-3xl font-light text-[#5c3c38] leading-relaxed font-serif max-w-2xl mx-auto">
-                لا أعرف كيف ستكون الأيام القادمة… لكنني أعرف شيئًا واحدًا يقينًا:
-              </p>
-              <p className="text-2xl md:text-4xl font-semibold text-[#a85b51] font-['Amiri'] drop-shadow-sm">
-                “أتمنى أن تظلي دائمًا… هذا الجمال الهادئ في حياتي”
-              </p>
-              <p className="text-xs text-neutral-500 font-light max-w-lg mx-auto leading-relaxed">
-                بعض الأشخاص لا يدخلون حياتنا صدفة, بل كرسالة دافئة ورحيمة من الله ليعيدوا لقلوبنا الطمأنينة والأمل والورود.
-              </p>
-            </div>
-          </section>
-
-          {/* 8. FINAL SECTION WITH EXPLICIT OMAR SIGNATURE */}
-          <footer className="text-center py-24 border-t border-[#FFD6E0]/60 space-y-8 relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-[1px] bg-[#FFB6C1]/40" />
-            
-            <span className="text-[10px] tracking-[0.3em] text-[#b06a61] uppercase block font-bold">منتهى السكينة والوداد الربيعي</span>
-            
-            <h2 className="text-4xl md:text-6xl font-bold font-['Amiri'] text-[#8c4d44] tracking-wide leading-relaxed animate-pulse">
-              “وكان أجمل ما حدث… أنكِ كنتِ أنتِ 🌸”
-            </h2>
-            
-            {/* Elegant single Omar signature */}
-            <div className="pt-4">
-              <p className="font-['Cinzel'] text-xl tracking-[0.25em] text-[#a85b51]/90 font-semibold animate-pulse">
-                — Omar
-              </p>
-            </div>
-            
-            <div className="w-10 h-[1px] bg-[#FFB6C1]/30 mx-auto pt-4" />
-          </footer>
-
-        </div>
-      )}
-
-      {/* Lightbox Modal */}
-      {activeLightbox && (
-        <div 
-          className="fixed inset-0 z-50 bg-[#FFF9F4]/98 backdrop-blur-xl flex flex-col justify-center items-center p-4 select-none animate-[fadeIn_0.3s_ease-out_forwards]"
-          onClick={() => setActiveLightbox(null)}
-        >
-          {/* Close HUD */}
-          <button 
-            className="absolute top-6 left-6 text-neutral-600 hover:text-[#a85b51] p-3 rounded-full bg-white/60 border border-[#FFD6E0] hover:bg-[#FFD6E0]/20 transition-all duration-300 shadow-sm"
-            onClick={() => setActiveLightbox(null)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          <div 
-            className="max-w-xl w-full text-center space-y-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative rounded-3xl overflow-hidden border-4 border-white shadow-2xl max-h-[70vh] flex items-center justify-center bg-white p-2">
-              <img 
-                src={activeLightbox.img} 
-                alt="تسنيم" 
-                className="max-w-full max-h-[66vh] object-contain rounded-2xl"
-              />
-            </div>
-            
-            <p className="text-[#5c3c38] text-lg font-light font-['Amiri'] px-4">
-              {activeLightbox.desc}
-            </p>
-            
-            <button 
-              onClick={() => setActiveLightbox(null)}
-              className="text-[#a85b51] hover:text-[#5c3c38] text-xs font-semibold tracking-wider uppercase transition-colors"
-            >
-              إغلاق المعاينة
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Embedded CSS Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-    </div>
-  );
-}
+        petalAnimationId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+  </script>
+</body>
+</html>
